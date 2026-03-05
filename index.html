@@ -86,9 +86,10 @@
         }
 
         .slider-item {
-            flex: 0 0 100%;
-            aspect-ratio: 16/9; /* Diubah agar gambar lebih tinggi dan jelas */
+            flex: 0 0 50%; /* Tampilkan 2 foto sekaligus */
+            aspect-ratio: 4/3; /* Ukuran lebih pendek dan proporsional */
             width: 100%;
+            border-right: 4px solid white; /* Pembatas antar foto */
         }
 
         .slider-item img {
@@ -99,16 +100,16 @@
 
         @keyframes slide {
             0% { transform: translateX(0); }
-            16.6% { transform: translateX(-100%); }
-            33.3% { transform: translateX(-200%); }
-            50% { transform: translateX(-300%); }
-            66.6% { transform: translateX(-400%); }
-            83.3% { transform: translateX(-500%); }
+            30% { transform: translateX(0); }
+            35% { transform: translateX(-100%); } /* Geser ke slide 3,4 */
+            65% { transform: translateX(-100%); }
+            70% { transform: translateX(-200%); } /* Geser ke slide 5,6 */
+            95% { transform: translateX(-200%); }
             100% { transform: translateX(0); }
         }
 
         .animate-slide {
-            animation: slide 30s infinite ease-in-out;
+            animation: slide 20s infinite cubic-bezier(0.4, 0, 0.2, 1);
         }
     </style>
 

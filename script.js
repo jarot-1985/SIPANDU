@@ -101,43 +101,43 @@ function showPage(pageId) {
                         <div class="slider-item relative">
                             <img src="https://drive.google.com/thumbnail?id=1gqpsBofXZIHAmZCCt_XeHkqj8MjdsWYs&sz=w1200" alt="Slider 1">
                             <div class="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black/60 to-transparent text-white">
-                                <h5 class="font-black text-lg">Dokumentasi 1</h5>
-                                <p class="text-xs opacity-80">Sistem Informasi Penyimpanan Data Terpadu</p>
+                                <h5 class="font-black text-lg">Slide 1</h5>
+                                <p class="text-xs opacity-80">Filosofi Logo PPS Raharjo</p>
                             </div>
                         </div>
                         <div class="slider-item relative">
                             <img src="https://drive.google.com/thumbnail?id=11mQCi5h3sikm4WQuaDtf7U-SiiPULXyH&sz=w1200" alt="Slider 2">
                             <div class="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black/60 to-transparent text-white">
-                                <h5 class="font-black text-lg">Dokumentasi 2</h5>
-                                <p class="text-xs opacity-80">Portal Internal PPS Raharjo Sragen</p>
+                                <h5 class="font-black text-lg">Slide 2</h5>
+                                <p class="text-xs opacity-80">Kepala Dinas Sosial Provinsi Jawa Tengah Bersama Pegawai PPS Raharjo dan RPS</p>
                             </div>
                         </div>
                         <div class="slider-item relative">
                             <img src="https://drive.google.com/thumbnail?id=1wkgiGR1U76m55rsh_47hED4j58uLlWxZ&sz=w1200" alt="Slider 3">
                             <div class="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black/60 to-transparent text-white">
-                                <h5 class="font-black text-lg">Dokumentasi 3</h5>
-                                <p class="text-xs opacity-80">Sistem Informasi Penyimpanan Data Terpadu</p>
+                                <h5 class="font-black text-lg">Slide 3</h5>
+                                <p class="text-xs opacity-80">Kepala PPS Raharjo Sragen</p>
                             </div>
                         </div>
                         <div class="slider-item relative">
                             <img src="https://drive.google.com/thumbnail?id=1cf_h2eqaoiPrEzh96xfZJdQpZ26y5O_y&sz=w1200" alt="Slider 4">
                             <div class="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black/60 to-transparent text-white">
-                                <h5 class="font-black text-lg">Dokumentasi 4</h5>
-                                <p class="text-xs opacity-80">Portal Internal PPS Raharjo Sragen</p>
+                                <h5 class="font-black text-lg">Slide 4</h5>
+                                <p class="text-xs opacity-80">Galery Penerima Manfaat</p>
                             </div>
                         </div>
                         <div class="slider-item relative">
                             <img src="https://drive.google.com/thumbnail?id=1SbT-1S2KVg3BJswr1M0YhCKVmB3hBvmn&sz=w1200" alt="Slider 5">
                             <div class="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black/60 to-transparent text-white">
                                 <h5 class="font-black text-lg">Dokumentasi 5</h5>
-                                <p class="text-xs opacity-80">Sistem Informasi Penyimpanan Data Terpadu</p>
+                                <p class="text-xs opacity-80">Galery Penerima Manfaat</p>
                             </div>
                         </div>
                         <div class="slider-item relative">
                             <img src="https://drive.google.com/thumbnail?id=16duM3ujQBF_PfpDoIfcJGW-ytgqJgL-5&sz=w1200" alt="Slider 6">
                             <div class="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black/60 to-transparent text-white">
-                                <h5 class="font-black text-lg">Dokumentasi 6</h5>
-                                <p class="text-xs opacity-80">Portal Internal PPS Raharjo Sragen</p>
+                                <h5 class="font-black text-lg">Slide 6</h5>
+                                <p class="text-xs opacity-80">Pemeriksaan Kesehatan Penerima Manfaat</p>
                             </div>
                         </div>
                     </div>
