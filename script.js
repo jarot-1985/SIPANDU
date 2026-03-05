@@ -406,6 +406,17 @@ function showPage(pageId) {
     initIcons();
     if (pageId === 'mutasi-pm') initMutasiForm();
     if (pageId === 'settings') initSliderSettingsForm();
+    if (pageId === 'dashboard') loadSliderImages();
+}
+
+// Helper untuk konversi link Google Drive ke format thumbnail yang bisa ditampilkan
+function convertGDLink(url) {
+    if (!url) return '';
+    const match = url.match(/(?:\/d\/|id=)([\w-]+)/);
+    if (match && match[1] && url.includes('drive.google.com')) {
+        return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1200`;
+    }
+    return url; // Bukan link Google Drive, kembalikan apa adanya
 }
 
 // Fungsi untuk menginisialisasi form pengaturan slider
@@ -428,14 +439,14 @@ function initSliderSettingsForm() {
         for (let i = 0; i < 6; i++) {
             const input = document.getElementById(`slideImage${i + 1}`);
             if (input && input.value) {
-                newImageUrls.push(input.value);
+                // Konversi otomatis jika link Google Drive
+                newImageUrls.push(convertGDLink(input.value));
             } else {
-                newImageUrls.push(''); // Simpan string kosong jika tidak ada URL
+                newImageUrls.push('');
             }
         }
         localStorage.setItem('sliderImageUrls', JSON.stringify(newImageUrls));
-        alert('URL gambar slider berhasil disimpan!');
-        // Opsional: perbarui slider di dashboard secara langsung
+        alert('Pengaturan berhasil disimpan! Slider akan diperbarui.');
         showPage('dashboard'); 
     });
 }
@@ -470,12 +481,9 @@ function loadSliderImages() {
     });
 
     // Perbarui konten slider di dashboard
-    const dashboardContent = document.getElementById('page-content');
-    if (dashboardContent && dashboardContent.innerHTML.includes('slider-container')) {
-        const sliderTrack = dashboardContent.querySelector('.slider-track');
-        if (sliderTrack) {
-            sliderTrack.innerHTML = sliderItemsHtml;
-        }
+    const sliderTrack = document.querySelector('.slider-track');
+    if (sliderTrack) {
+        sliderTrack.innerHTML = sliderItemsHtml;
     }
 }
 
