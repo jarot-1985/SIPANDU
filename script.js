@@ -444,12 +444,12 @@ function initSliderSettingsForm() {
 function loadSliderImages() {
     const savedImageUrls = JSON.parse(localStorage.getItem('sliderImageUrls')) || [];
     const defaultImageUrls = [
-        "https://drive.google.com/uc?export=download&id=1gqpsBofXZIHAmZCCt_XeHkqj8MjdsWYs",
-        "https://drive.google.com/uc?export=download&id=11mQCi5h3sikm4WQuaDtf7U-SiiPULXyH",
-        "https://drive.google.com/uc?export=download&id=1wkgiGR1U76m55rsh_47hED4j58uLlWxZ",
-        "https://drive.google.com/uc?export=download&id=1cf_h2eqaoiPrEzh96xfZJdQpZ26y5O_y",
-        "https://drive.google.com/uc?export=download&id=1SbT-1S2KVg3BJswr1M0YhCKVmB3hBvmn",
-        "https://drive.google.com/uc?export=download&id=16duM3ujQBF_PfpDoIfcJGW-ytgqJgL-5"
+        "https://drive.google.com/thumbnail?id=1gqpsBofXZIHAmZCCt_XeHkqj8MjdsWYs&sz=w1200",
+        "https://drive.google.com/thumbnail?id=11mQCi5h3sikm4WQuaDtf7U-SiiPULXyH&sz=w1200",
+        "https://drive.google.com/thumbnail?id=1wkgiGR1U76m55rsh_47hED4j58uLlWxZ&sz=w1200",
+        "https://drive.google.com/thumbnail?id=1cf_h2eqaoiPrEzh96xfZJdQpZ26y5O_y&sz=w1200",
+        "https://drive.google.com/thumbnail?id=1SbT-1S2KVg3BJswr1M0YhCKVmB3hBvmn&sz=w1200",
+        "https://drive.google.com/thumbnail?id=16duM3ujQBF_PfpDoIfcJGW-ytgqJgL-5&sz=w1200"
     ];
 
     const imageUrlsToUse = savedImageUrls.filter(url => url !== '').length > 0 ? savedImageUrls : defaultImageUrls;
