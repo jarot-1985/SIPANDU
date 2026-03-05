@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SI PANDU - Portal Internal PPS Raharjo Sragen</title>
+    <title>SIPANDU - Sistem informasi Penyimpanan Data Terpadu (Portal Internal PPS Raharjo Sragen)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Library Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -61,7 +61,57 @@
             background: rgba(14, 165, 233, 0.2);
             border-radius: 10px;
         }
+
+        #sidebar-overlay {
+            transition: opacity 0.3s ease;
+        }
+
+        #sidebar-overlay.active {
+            opacity: 1;
+        }
+
+        /* Slider Styles */
+        .slider-container {
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+            border-radius: 1.5rem;
+            background: #f1f5f9;
+        }
+
+        .slider-track {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+            width: 100%;
+        }
+
+        .slider-item {
+            flex: 0 0 100%;
+            aspect-ratio: 32/9; /* Diperlebar agar tinggi gambar lebih kecil */
+            width: 100%;
+        }
+
+        .slider-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        @keyframes slide {
+            0% { transform: translateX(0); }
+            16.6% { transform: translateX(-100%); }
+            33.3% { transform: translateX(-200%); }
+            50% { transform: translateX(-300%); }
+            66.6% { transform: translateX(-400%); }
+            83.3% { transform: translateX(-500%); }
+            100% { transform: translateX(0); }
+        }
+
+        .animate-slide {
+            animation: slide 30s infinite ease-in-out;
+        }
     </style>
+
     <script>
         function initIcons() {
             if (typeof lucide !== 'undefined') {
@@ -69,6 +119,11 @@
             }
         }
     </script>
+
+
+
+
+
 </head>
 <body class="bg-slate-50 text-slate-800">
 
@@ -80,11 +135,11 @@
             <div class="p-6 bg-sky-600/50 backdrop-blur-md flex items-center justify-between border-b border-sky-400/30">
                 <div class="flex items-center space-x-3">
                     <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg shrink-0">
-                        <i data-lucide="shield-check" class="text-sky-500 w-6 h-6"></i>
+                        <img src="maskot-sipandu.png" alt="Logo Sipandu" class="w-8 h-8 object-contain">
                     </div>
                     <div>
                         <h1 class="text-lg font-black tracking-tight leading-none">Si PANDU</h1>
-                        <p class="text-[9px] text-sky-100 mt-1 uppercase font-bold tracking-wider">PPS Raharjo Sragen</p>
+                        <p class="text-[9px] text-sky-100 mt-1 uppercase font-bold tracking-wider"></p>
                     </div>
                 </div>
                 <button onclick="toggleSidebar()" class="lg:hidden p-2 hover:bg-white/20 rounded-lg">
@@ -96,7 +151,7 @@
                 <!-- Dashboard Utama -->
                 <button onclick="showPage('dashboard')" id="menu-dashboard" class="flex items-center space-x-3 w-full px-4 py-3 rounded-xl hover:bg-white/10 active-menu transition-all text-left">
                     <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
-                    <span class="font-bold text-sm">Dashboard Utama</span>
+                    <span class="font-bold text-sm">Dashboard</span>
                 </button>
 
                 <!-- Kelompok Tata Usaha -->
@@ -109,10 +164,22 @@
                         <i data-lucide="chevron-down" class="w-4 h-4 chevron-icon"></i>
                     </button>
                     <div id="sub-tu" class="submenu-container pl-11 space-y-1">
-                        <button onclick="showPage('pengumuman')" class="w-full py-2 text-left text-sm text-sky-50 hover:text-white transition-colors">Pengumuman</button>
-                        <button onclick="showPage('pegawai')" class="w-full py-2 text-left text-sm text-sky-50 hover:text-white transition-colors">Data Pegawai</button>
-                        <button onclick="showPage('surat-masuk')" class="w-full py-2 text-left text-sm text-sky-50 hover:text-white transition-colors">Surat Masuk</button>
-                        <button onclick="showPage('surat-keluar')" class="w-full py-2 text-left text-sm text-sky-50 hover:text-white transition-colors">Surat Keluar</button>
+                        <div class="flex items-center justify-between py-2 pr-4">
+                            <span class="text-sm text-sky-50/50">Pengumuman</span>
+                            <span class="text-[8px] font-black bg-amber-400/20 text-amber-200 px-1.5 py-0.5 rounded uppercase tracking-tighter">Dalam Pengembangan</span>
+                        </div>
+                        <div class="flex items-center justify-between py-2 pr-4">
+                            <span class="text-sm text-sky-50/50">Data Pegawai</span>
+                            <span class="text-[8px] font-black bg-amber-400/20 text-amber-200 px-1.5 py-0.5 rounded uppercase tracking-tighter">Dalam Pengembangan</span>
+                        </div>
+                        <div class="flex items-center justify-between py-2 pr-4">
+                            <span class="text-sm text-sky-50/50">Surat Masuk</span>
+                            <span class="text-[8px] font-black bg-amber-400/20 text-amber-200 px-1.5 py-0.5 rounded uppercase tracking-tighter">Dalam Pengembangan</span>
+                        </div>
+                        <div class="flex items-center justify-between py-2 pr-4">
+                            <span class="text-sm text-sky-50/50">Surat Keluar</span>
+                            <span class="text-[8px] font-black bg-amber-400/20 text-amber-200 px-1.5 py-0.5 rounded uppercase tracking-tighter">Dalam Pengembangan</span>
+                        </div>
                     </div>
                 </div>
 
@@ -126,9 +193,10 @@
                         <i data-lucide="chevron-down" class="w-4 h-4 chevron-icon"></i>
                     </button>
                     <div id="sub-pm" class="submenu-container pl-11 space-y-1">
-                        <button onclick="showPage('absensi-pm')" class="w-full py-2 text-left text-sm text-sky-50 hover:text-white transition-colors">Absensi PM</button>
-                        <button onclick="showPage('mutasi-pm')" class="w-full py-2 text-left text-sm text-sky-50 hover:text-white transition-colors">Mutasi PM</button>
-                    </div>
+                     
+                        <a href="https://gemini.google.com/share/ff3f0efa8afc" target="_blank" class="block w-full py-2 text-left text-sm text-sky-50 hover:text-white transition-colors">Rekap Absensi PM</a>
+                        <a href="https://gemini.google.com/share/9e09e56ada17" target="_blank" class="block w-full py-2 text-left text-sm text-sky-50 hover:text-white transition-colors">Monitoring Pelayanan Resos</a>
+                                            </div>
                 </div>
 
                 <!-- Pencatatan Belanja -->
@@ -141,15 +209,14 @@
                         <i data-lucide="chevron-down" class="w-4 h-4 chevron-icon"></i>
                     </button>
                     <div id="sub-belanja" class="submenu-container pl-11 space-y-1">
-                        <button onclick="showPage('belanja-sosh')" class="w-full py-2 text-left text-sm text-sky-50 hover:text-white transition-colors">Belanja SOSH</button>
-                        <button onclick="showPage('belanja-pakaian')" class="w-full py-2 text-left text-sm text-sky-50 hover:text-white transition-colors">Belanja Pakaian</button>
-                        <button onclick="showPage('belanja-umum')" class="w-full py-2 text-left text-sm text-sky-50 hover:text-white transition-colors">Belanja Umum</button>
-                        <button onclick="showPage('belanja-modal')" class="w-full py-2 text-left text-sm text-sky-50 hover:text-white transition-colors">Belanja Modal</button>
+                        <a href="https://gemini.google.com/share/2c5cfe02f1b3" target="_blank" class="block w-full py-2 text-left text-sm text-sky-50 hover:text-white transition-colors">Belanja SOSH</a>
+                        <a href="https://gemini.google.com/share/e95ac5296dfb" target="_blank" class="block w-full py-2 text-left text-sm text-sky-50 hover:text-white transition-colors">Belanja Pakaian</a>
+                        <a href="https://gemini.google.com/share/698018197769" target="_blank" class="block w-full py-2 text-left text-sm text-sky-50 hover:text-white transition-colors">Belanja Barang Jasa tertentu</a>
+                        <a href="https://gemini.google.com/share/7f97efecdc7f" target="_blank" class="block w-full py-2 text-left text-sm text-sky-50 hover:text-white transition-colors">Belanja Modal</a>
                     </div>
                 </div>
 
-                <!-- Kelompok Laporan -->
-                <div class="space-y-1 pb-10">
+                <div class="space-y-1">
                     <button onclick="toggleSubmenu('sub-laporan', this)" class="flex items-center justify-between w-full px-4 py-3 rounded-xl hover:bg-white/10 transition-all text-left">
                         <div class="flex items-center space-x-3">
                             <i data-lucide="file-text" class="w-5 h-5"></i>
@@ -158,13 +225,39 @@
                         <i data-lucide="chevron-down" class="w-4 h-4 chevron-icon"></i>
                     </button>
                     <div id="sub-laporan" class="submenu-container pl-11 space-y-1">
-                        <button onclick="showPage('laporan-unit')" class="w-full py-2 text-left text-sm text-sky-50 hover:text-white transition-colors">Laporan Unit Kerja</button>
-                        <button onclick="showPage('laporan-kegiatan')" class="w-full py-2 text-left text-sm text-sky-50 hover:text-white transition-colors">Laporan Kegiatan</button>
-                        <button onclick="showPage('laporan-ikm')" class="w-full py-2 text-left text-sm text-sky-50 hover:text-white transition-colors">Laporan IKM</button>
-                        <button onclick="showPage('laporan-spm')" class="w-full py-2 text-left text-sm text-sky-50 hover:text-white transition-colors">Laporan SPM</button>
-                        <button onclick="showPage('laporan-pekpp')" class="w-full py-2 text-left text-sm text-sky-50 hover:text-white transition-colors">Laporan E-PEKPP</button>
-                        <button onclick="showPage('laporan-bmd')" class="w-full py-2 text-left text-sm text-sky-50 hover:text-white transition-colors">Laporan BMD</button>
+                        <div class="flex items-center justify-between py-2 pr-4">
+                            <span class="text-sm text-sky-50/50">Laporan Unit Kerja</span>
+                            <span class="text-[8px] font-black bg-amber-400/20 text-amber-200 px-1.5 py-0.5 rounded uppercase tracking-tighter">Dalam Pengembangan</span>
+                        </div>
+                        <div class="flex items-center justify-between py-2 pr-4">
+                            <span class="text-sm text-sky-50/50">Laporan Kegiatan</span>
+                            <span class="text-[8px] font-black bg-amber-400/20 text-amber-200 px-1.5 py-0.5 rounded uppercase tracking-tighter">Dalam Pengembangan</span>
+                        </div>
+                        <div class="flex items-center justify-between py-2 pr-4">
+                            <span class="text-sm text-sky-50/50">Laporan IKM</span>
+                            <span class="text-[8px] font-black bg-amber-400/20 text-amber-200 px-1.5 py-0.5 rounded uppercase tracking-tighter">Dalam Pengembangan</span>
+                        </div>
+                        <div class="flex items-center justify-between py-2 pr-4">
+                            <span class="text-sm text-sky-50/50">Laporan SPM</span>
+                            <span class="text-[8px] font-black bg-amber-400/20 text-amber-200 px-1.5 py-0.5 rounded uppercase tracking-tighter">Dalam Pengembangan</span>
+                        </div>
+                        <div class="flex items-center justify-between py-2 pr-4">
+                            <span class="text-sm text-sky-50/50">Laporan E-PEKPP</span>
+                            <span class="text-[8px] font-black bg-amber-400/20 text-amber-200 px-1.5 py-0.5 rounded uppercase tracking-tighter">Dalam Pengembangan</span>
+                        </div>
+                        <div class="flex items-center justify-between py-2 pr-4">
+                            <span class="text-sm text-sky-50/50">Laporan BMD</span>
+                            <span class="text-[8px] font-black bg-amber-400/20 text-amber-200 px-1.5 py-0.5 rounded uppercase tracking-tighter">Dalam Pengembangan</span>
+                        </div>
                     </div>
+                </div>
+
+                <!-- Pengaturan -->
+                <div class="border-t border-sky-400/20 mx-3 pt-3 mt-3">
+                     <button onclick="showPage('settings')" id="menu-settings" class="flex items-center space-x-3 w-full px-4 py-3 rounded-xl hover:bg-white/10 transition-all text-left">
+                        <i data-lucide="settings" class="w-5 h-5"></i>
+                        <span class="font-bold text-sm">Pengaturan</span>
+                    </button>
                 </div>
             </nav>
 
@@ -173,8 +266,8 @@
                 <div class="flex items-center space-x-3 p-2 rounded-xl bg-white/10">
                     <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center font-black text-sky-500 text-[10px]">AD</div>
                     <div class="flex-1 overflow-hidden text-[10px]">
-                        <p class="font-black truncate uppercase">Admin Portal</p>
-                        <p class="text-sky-100 font-bold uppercase opacity-70">Internal PPS</p>
+                        <p class="font-black truncate uppercase">Admin </p>
+                        <p class="text-sky-100 font-bold uppercase opacity-70">PPS RAHARJO SRAGEN</p>
                     </div>
                 </div>
             </div>
@@ -193,55 +286,98 @@
                 <div id="current-date" class="hidden sm:block text-[10px] font-black text-sky-600 uppercase tracking-tighter"></div>
             </header>
 
-            <!-- Dashboard Content -->
-            <div class="flex-1 overflow-y-auto p-6 lg:p-8 space-y-8">
+            <!-- Page Content -->
+            <div id="page-content" class="flex-1 overflow-y-auto p-6 lg:p-8 space-y-8">
                 
                 <!-- Hero Section -->
                 <div class="bg-gradient-to-br from-sky-500 to-indigo-600 rounded-3xl p-8 text-white relative overflow-hidden shadow-2xl shadow-sky-200">
-                    <div class="relative z-10 max-w-lg">
-                        <h3 class="text-2xl font-black mb-2 uppercase tracking-tight">Si PANDU Dashboard</h3>
-                        <p class="text-sky-100 text-sm leading-relaxed mb-6 font-medium">Sistem Informasi Penyimpanan Data Terpadu PPS Raharjo Sragen. Akses data internal secara cepat dan efisien.</p>
+                    <div class="relative z-10 max-w-5xl">
+                        <div class="flex items-center gap-8 mb-6">
+                            <div class="relative group shrink-0">
+                                <div class="absolute -inset-2 bg-white/20 rounded-3xl blur-xl opacity-25 group-hover:opacity-60 transition duration-1000 group-hover:duration-200"></div>
+                                <img src="maskot-sipandu.png" alt="Logo Sipandu" class="relative w-48 h-48 object-contain rounded-3xl bg-white/10 p-3 shadow-2xl ring-2 ring-white/40" onerror="this.style.display='none'">
+                            </div>
+                            <div>
+                                <h3 class="text-7xl font-black uppercase tracking-tighter mb-4 drop-shadow-2xl">SIPANDU</h3>
+                                <p class="text-3xl font-bold text-sky-50 leading-tight mb-2 whitespace-nowrap">
+                                    Sistem Informasi Penyimpanan Data Terpadu
+                                </p>
+                                <p class="text-xl font-medium text-sky-100/90 italic">
+                                    (Portal Internal PPS Raharjo Sragen)
+                                </p>
+                            </div>
+                        </div>
                         <div class="flex space-x-3">
                             <div class="px-4 py-2 bg-white/20 backdrop-blur-md border border-white/20 rounded-lg text-[10px] font-bold uppercase tracking-widest">Status: Aktif</div>
                         </div>
                     </div>
-                    <i data-lucide="database" class="absolute -right-8 -bottom-8 w-64 h-64 text-white/10 rotate-12"></i>
                 </div>
 
-                <!-- Stats Grid -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-                        <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-4"><i data-lucide="users" class="w-5 h-5"></i></div>
-                        <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Data Pegawai</h4>
-                        <p class="text-3xl font-black text-slate-800">45</p>
+                <!-- Gallery Slider (Replacing Stats Grid) -->
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-sm font-black text-slate-800 uppercase tracking-widest">Galeri & Dokumentasi</h4>
+                        <span class="text-[10px] text-slate-400 font-bold uppercase">Geser Otomatis</span>
                     </div>
-                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-                        <div class="w-10 h-10 bg-sky-50 text-sky-600 rounded-xl flex items-center justify-center mb-4"><i data-lucide="user-check" class="w-5 h-5"></i></div>
-                        <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">PM Aktif</h4>
-                        <p class="text-3xl font-black text-slate-800">120</p>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-                        <div class="w-10 h-10 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center mb-4"><i data-lucide="mail" class="w-5 h-5"></i></div>
-                        <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Surat Masuk</h4>
-                        <p class="text-3xl font-black text-slate-800">12</p>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-                        <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center mb-4"><i data-lucide="check-circle" class="w-5 h-5"></i></div>
-                        <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Capaian Laporan</h4>
-                        <p class="text-3xl font-black text-slate-800">100<span class="text-sm">%</span></p>
+                    <div class="slider-container shadow-xl border-4 border-white">
+                        <div class="slider-track animate-slide">
+                            <!-- GANTI URL GAMBAR DI SINI SEWAKTU-WAKTU (SLIDE 1-6) -->
+                            <div class="slider-item relative">
+                                <img src="https://drive.google.com/uc?export=download&id=1gqpsBofXZIHAmZCCt_XeHkqj8MjdsWYs" alt="Slider 1">
+                                <div class="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black/60 to-transparent text-white">
+                                    <h5 class="font-black text-lg">Dokumentasi 1</h5>
+                                    <p class="text-xs opacity-80">Sistem Informasi Penyimpanan Data Terpadu</p>
+                                </div>
+                            </div>
+                            <div class="slider-item relative">
+                                <img src="https://drive.google.com/uc?export=download&id=11mQCi5h3sikm4WQuaDtf7U-SiiPULXyH" alt="Slider 2">
+                                <div class="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black/60 to-transparent text-white">
+                                    <h5 class="font-black text-lg">Dokumentasi 2</h5>
+                                    <p class="text-xs opacity-80">Portal Internal PPS Raharjo Sragen</p>
+                                </div>
+                            </div>
+                            <div class="slider-item relative">
+                                <img src="https://drive.google.com/uc?export=download&id=1wkgiGR1U76m55rsh_47hED4j58uLlWxZ" alt="Slider 3">
+                                <div class="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black/60 to-transparent text-white">
+                                    <h5 class="font-black text-lg">Dokumentasi 3</h5>
+                                    <p class="text-xs opacity-80">Sistem Informasi Penyimpanan Data Terpadu</p>
+                                </div>
+                            </div>
+                            <div class="slider-item relative">
+                                <img src="https://drive.google.com/uc?export=download&id=1cf_h2eqaoiPrEzh96xfZJdQpZ26y5O_y" alt="Slider 4">
+                                <div class="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black/60 to-transparent text-white">
+                                    <h5 class="font-black text-lg">Dokumentasi 4</h5>
+                                    <p class="text-xs opacity-80">Portal Internal PPS Raharjo Sragen</p>
+                                </div>
+                            </div>
+                            <div class="slider-item relative">
+                                <img src="https://drive.google.com/uc?export=download&id=1SbT-1S2KVg3BJswr1M0YhCKVmB3hBvmn" alt="Slider 5">
+                                <div class="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black/60 to-transparent text-white">
+                                    <h5 class="font-black text-lg">Dokumentasi 5</h5>
+                                    <p class="text-xs opacity-80">Sistem Informasi Penyimpanan Data Terpadu</p>
+                                </div>
+                            </div>
+                            <div class="slider-item relative">
+                                <img src="https://drive.google.com/uc?export=download&id=16duM3ujQBF_PfpDoIfcJGW-ytgqJgL-5" alt="Slider 6">
+                                <div class="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black/60 to-transparent text-white">
+                                    <h5 class="font-black text-lg">Dokumentasi 6</h5>
+                                    <p class="text-xs opacity-80">Portal Internal PPS Raharjo Sragen</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Info Cards -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+                    <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all space-y-4">
                         <div class="flex items-center space-x-3 mb-2">
                             <i data-lucide="mouse-pointer-click" class="w-5 h-5 text-sky-500"></i>
                             <h4 class="font-black text-sm uppercase tracking-wider">Navigasi Dropdown</h4>
                         </div>
                         <p class="text-sm text-slate-500 leading-relaxed">Klik pada nama kelompok kerja di sidebar untuk membuka sub-menu dan mengakses data spesifik yang Anda butuhkan.</p>
                     </div>
-                    <div class="bg-sky-50 p-8 rounded-3xl border border-sky-100 shadow-sm space-y-4">
+                    <div class="bg-sky-50 p-8 rounded-3xl border border-sky-100 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all space-y-4">
                         <div class="flex items-center space-x-3 mb-2">
                             <i data-lucide="info" class="w-5 h-5 text-sky-600"></i>
                             <h4 class="font-black text-sm uppercase tracking-wider text-sky-800">Satu Pintu</h4>
@@ -252,86 +388,11 @@
             </div>
             
             <footer class="px-8 py-5 border-t border-slate-200 bg-white">
-                <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest">&copy; 2023 PPS RAHARJO SRAGEN &bull; Portal Dashboard</p>
+                <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest">Portal Internal&bull;  PPS RAHARJO SRAGEN &copy; 2026 </p>
             </footer>
         </main>
     </div>
 
-    <script>
-        let isSidebarOpen = true;
-
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('main-content');
-            const overlay = document.getElementById('sidebar-overlay');
-            
-            isSidebarOpen = !isSidebarOpen;
-
-            if (isSidebarOpen) {
-                sidebar.classList.remove('collapsed');
-                if (window.innerWidth >= 1024) mainContent.classList.add('lg:ml-72');
-                else overlay.classList.add('active');
-            } else {
-                sidebar.classList.add('collapsed');
-                mainContent.classList.remove('lg:ml-72');
-                overlay.classList.remove('active');
-            }
-        }
-
-        function toggleSubmenu(id, btn) {
-            const submenu = document.getElementById(id);
-            const chevron = btn.querySelector('.chevron-icon');
-            
-            // Tutup semua submenu lainnya (Opsional, jika ingin perilaku akordion)
-            /*
-            document.querySelectorAll('.submenu-container').forEach(sub => {
-                if(sub.id !== id) {
-                    sub.classList.remove('open');
-                    const otherBtn = sub.previousElementSibling;
-                    if(otherBtn) otherBtn.querySelector('.chevron-icon').classList.remove('rotate');
-                }
-            });
-            */
-
-            submenu.classList.toggle('open');
-            chevron.classList.toggle('rotate');
-        }
-
-        function showPage(pageId) {
-            document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active-menu'));
-            const activeBtn = document.getElementById('menu-' + pageId);
-            if (activeBtn) activeBtn.classList.add('active-menu');
-            
-            const displayTitle = pageId.replace(/-/g, ' ').toUpperCase();
-            document.getElementById('page-title-display').innerText = displayTitle === 'DASHBOARD' ? 'Dashboard Utama' : displayTitle;
-
-            if (window.innerWidth < 1024) toggleSidebar();
-            initIcons();
-        }
-
-        window.addEventListener('resize', () => {
-            const mainContent = document.getElementById('main-content');
-            if (window.innerWidth < 1024) {
-                isSidebarOpen = false;
-                document.getElementById('sidebar').classList.add('collapsed');
-                mainContent.classList.remove('lg:ml-72');
-            } else {
-                isSidebarOpen = true;
-                document.getElementById('sidebar').classList.remove('collapsed');
-                mainContent.classList.add('lg:ml-72');
-            }
-        });
-
-        document.addEventListener('DOMContentLoaded', () => {
-            initIcons();
-            document.getElementById('current-date').innerText = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-            
-            if (window.innerWidth < 1024) {
-                isSidebarOpen = false;
-                document.getElementById('sidebar').classList.add('collapsed');
-                document.getElementById('main-content').classList.remove('lg:ml-72');
-            }
-        });
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
