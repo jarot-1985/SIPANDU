@@ -99,42 +99,42 @@ function showPage(pageId) {
                     <div class="slider-track animate-slide">
                         <!-- GANTI URL GAMBAR DI SINI SEWAKTU-WAKTU (SLIDE 1-6) -->
                         <div class="slider-item relative">
-                            <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=1200" alt="Slider 1">
+                            <img src="https://drive.google.com/file/d/1gqpsBofXZIHAmZCCt_XeHkqj8MjdsWYs/view?usp=sharing" alt="Slider 1">
                             <div class="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black/60 to-transparent text-white">
                                 <h5 class="font-black text-lg">Kegiatan Pelayanan PM</h5>
                                 <p class="text-xs opacity-80">Dokumentasi kegiatan harian di PPS Raharjo Sragen</p>
                             </div>
                         </div>
                         <div class="slider-item relative">
-                            <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=1200" alt="Slider 2">
+                            <img src="https://drive.google.com/file/d/11mQCi5h3sikm4WQuaDtf7U-SiiPULXyH/view?usp=sharing" alt="Slider 2">
                             <div class="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black/60 to-transparent text-white">
                                 <h5 class="font-black text-lg">Rapat Koordinasi Internal</h5>
                                 <p class="text-xs opacity-80">Sinkronisasi data dan evaluasi bulanan tim IT</p>
                             </div>
                         </div>
                         <div class="slider-item relative">
-                            <img src="https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=1200" alt="Slider 3">
+                            <img src="https://drive.google.com/file/d/1wkgiGR1U76m55rsh_47hED4j58uLlWxZ/view?usp=sharing" alt="Slider 3">
                             <div class="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black/60 to-transparent text-white">
                                 <h5 class="font-black text-lg">Kunjungan Kerja Lapangan</h5>
                                 <p class="text-xs opacity-80">Monitoring unit pelayanan di seluruh wilayah Sragen</p>
                             </div>
                         </div>
                         <div class="slider-item relative">
-                            <img src="https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=1200" alt="Slider 4">
+                            <img src="https://drive.google.com/file/d/1cf_h2eqaoiPrEzh96xfZJdQpZ26y5O_y/view?usp=sharing" alt="Slider 4">
                             <div class="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black/60 to-transparent text-white">
                                 <h5 class="font-black text-lg">Fasilitas Unit Pelayanan</h5>
                                 <p class="text-xs opacity-80">Kebersihan dan kenyamanan prioritas utama kami</p>
                             </div>
                         </div>
                         <div class="slider-item relative">
-                            <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1200" alt="Slider 5">
+                            <img src="https://drive.google.com/file/d/1SbT-1S2KVg3BJswr1M0YhCKVmB3hBvmn/view?usp=sharing" alt="Slider 5">
                             <div class="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black/60 to-transparent text-white">
                                 <h5 class="font-black text-lg">Integrasi Data Digital</h5>
                                 <p class="text-xs opacity-80">Pengelolaan data terpadu untuk efisiensi birokrasi</p>
                             </div>
                         </div>
                         <div class="slider-item relative">
-                            <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=1200" alt="Slider 6">
+                            <img src="https://drive.google.com/file/d/16duM3ujQBF_PfpDoIfcJGW-ytgqJgL-5/view?usp=sharing" alt="Slider 6">
                             <div class="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black/60 to-transparent text-white">
                                 <h5 class="font-black text-lg">Tim IT PPS Sragen</h5>
                                 <p class="text-xs opacity-80">Profesionalitas dalam mendukung sistem informasi</p>
