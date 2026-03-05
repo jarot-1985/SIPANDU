@@ -99,45 +99,45 @@ function showPage(pageId) {
                     <div class="slider-track animate-slide">
                         <!-- GANTI URL GAMBAR DI SINI SEWAKTU-WAKTU (SLIDE 1-6) -->
                         <div class="slider-item relative">
-                            <img src="https://drive.google.com/file/d/1gqpsBofXZIHAmZCCt_XeHkqj8MjdsWYs/view?usp=sharing" alt="Slider 1">
+                            <img src="https://drive.google.com/thumbnail?id=1gqpsBofXZIHAmZCCt_XeHkqj8MjdsWYs&sz=w1200" alt="Slider 1">
                             <div class="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black/60 to-transparent text-white">
-                                <h5 class="font-black text-lg">Kegiatan Pelayanan PM</h5>
-                                <p class="text-xs opacity-80">Dokumentasi kegiatan harian di PPS Raharjo Sragen</p>
+                                <h5 class="font-black text-lg">Dokumentasi 1</h5>
+                                <p class="text-xs opacity-80">Sistem Informasi Penyimpanan Data Terpadu</p>
                             </div>
                         </div>
                         <div class="slider-item relative">
-                            <img src="https://drive.google.com/file/d/11mQCi5h3sikm4WQuaDtf7U-SiiPULXyH/view?usp=sharing" alt="Slider 2">
+                            <img src="https://drive.google.com/thumbnail?id=11mQCi5h3sikm4WQuaDtf7U-SiiPULXyH&sz=w1200" alt="Slider 2">
                             <div class="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black/60 to-transparent text-white">
-                                <h5 class="font-black text-lg">Rapat Koordinasi Internal</h5>
-                                <p class="text-xs opacity-80">Sinkronisasi data dan evaluasi bulanan tim IT</p>
+                                <h5 class="font-black text-lg">Dokumentasi 2</h5>
+                                <p class="text-xs opacity-80">Portal Internal PPS Raharjo Sragen</p>
                             </div>
                         </div>
                         <div class="slider-item relative">
-                            <img src="https://drive.google.com/file/d/1wkgiGR1U76m55rsh_47hED4j58uLlWxZ/view?usp=sharing" alt="Slider 3">
+                            <img src="https://drive.google.com/thumbnail?id=1wkgiGR1U76m55rsh_47hED4j58uLlWxZ&sz=w1200" alt="Slider 3">
                             <div class="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black/60 to-transparent text-white">
-                                <h5 class="font-black text-lg">Kunjungan Kerja Lapangan</h5>
-                                <p class="text-xs opacity-80">Monitoring unit pelayanan di seluruh wilayah Sragen</p>
+                                <h5 class="font-black text-lg">Dokumentasi 3</h5>
+                                <p class="text-xs opacity-80">Sistem Informasi Penyimpanan Data Terpadu</p>
                             </div>
                         </div>
                         <div class="slider-item relative">
-                            <img src="https://drive.google.com/file/d/1cf_h2eqaoiPrEzh96xfZJdQpZ26y5O_y/view?usp=sharing" alt="Slider 4">
+                            <img src="https://drive.google.com/thumbnail?id=1cf_h2eqaoiPrEzh96xfZJdQpZ26y5O_y&sz=w1200" alt="Slider 4">
                             <div class="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black/60 to-transparent text-white">
-                                <h5 class="font-black text-lg">Fasilitas Unit Pelayanan</h5>
-                                <p class="text-xs opacity-80">Kebersihan dan kenyamanan prioritas utama kami</p>
+                                <h5 class="font-black text-lg">Dokumentasi 4</h5>
+                                <p class="text-xs opacity-80">Portal Internal PPS Raharjo Sragen</p>
                             </div>
                         </div>
                         <div class="slider-item relative">
-                            <img src="https://drive.google.com/file/d/1SbT-1S2KVg3BJswr1M0YhCKVmB3hBvmn/view?usp=sharing" alt="Slider 5">
+                            <img src="https://drive.google.com/thumbnail?id=1SbT-1S2KVg3BJswr1M0YhCKVmB3hBvmn&sz=w1200" alt="Slider 5">
                             <div class="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black/60 to-transparent text-white">
-                                <h5 class="font-black text-lg">Integrasi Data Digital</h5>
-                                <p class="text-xs opacity-80">Pengelolaan data terpadu untuk efisiensi birokrasi</p>
+                                <h5 class="font-black text-lg">Dokumentasi 5</h5>
+                                <p class="text-xs opacity-80">Sistem Informasi Penyimpanan Data Terpadu</p>
                             </div>
                         </div>
                         <div class="slider-item relative">
-                            <img src="https://drive.google.com/file/d/16duM3ujQBF_PfpDoIfcJGW-ytgqJgL-5/view?usp=sharing" alt="Slider 6">
+                            <img src="https://drive.google.com/thumbnail?id=16duM3ujQBF_PfpDoIfcJGW-ytgqJgL-5&sz=w1200" alt="Slider 6">
                             <div class="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black/60 to-transparent text-white">
-                                <h5 class="font-black text-lg">Tim IT PPS Sragen</h5>
-                                <p class="text-xs opacity-80">Profesionalitas dalam mendukung sistem informasi</p>
+                                <h5 class="font-black text-lg">Dokumentasi 6</h5>
+                                <p class="text-xs opacity-80">Portal Internal PPS Raharjo Sragen</p>
                             </div>
                         </div>
                     </div>
@@ -370,34 +370,8 @@ function showPage(pageId) {
                 <h3 class="text-xl font-black mb-4">Laporan BMD</h3>
                 <p class="text-slate-600">Halaman laporan BMD akan segera tersedia.</p>
             </div>
-        `,
-        'settings': `
-            <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
-                <div class="flex items-center gap-3">
-                    <i data-lucide="settings" class="w-5 h-5 text-sky-600"></i>
-                    <h3 class="text-xl font-black text-slate-800">Pengaturan Slider Gambar</h3>
-                </div>
-                <p class="text-slate-600">Masukkan URL gambar untuk setiap slide. Gunakan URL gambar langsung (misal: dari Unsplash, Imgur, dll.).</p>
-                <form id="sliderSettingsForm" class="space-y-4">
-                    ${Array.from({ length: 6 }).map((_, i) => `
-                        <div>
-                            <label for="slideImage${i + 1}" class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">URL Gambar Slide ${i + 1}</label>
-                            <input type="url" id="slideImage${i + 1}" name="slideImage${i + 1}" class="w-full p-3.5 bg-slate-50 border-2 border-slate-200 focus:border-sky-300 rounded-2xl font-bold text-sm outline-none transition-all" placeholder="https://example.com/image${i + 1}.jpg">
-                        </div>
-                    `).join('')}
-                    <button type="submit" class="w-full bg-sky-600 text-white font-bold py-3 rounded-2xl hover:bg-sky-700 transition-colors">Simpan Pengaturan</button>
-                </form>
-            </div>
         `
     };
-
-    if (pageId === 'settings') {
-        const password = prompt('Masukkan sandi untuk mengakses pengaturan:');
-        if (password !== '888') {
-            alert('Sandi salah! Akses ditolak.');
-            return; // Jangan tampilkan halaman pengaturan
-        }
-    }
 
     const content = pageContents[pageId] || '<div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm"><h3 class="text-xl font-black mb-4">Halaman Tidak Ditemukan</h3><p class="text-slate-600">Konten untuk halaman ini belum tersedia.</p></div>';
     document.getElementById('page-content').innerHTML = content;
@@ -405,93 +379,12 @@ function showPage(pageId) {
     if (window.innerWidth < 1024) toggleSidebar();
     initIcons();
     if (pageId === 'mutasi-pm') initMutasiForm();
-    if (pageId === 'settings') initSliderSettingsForm();
-    if (pageId === 'dashboard') loadSliderImages();
 }
 
-// Helper untuk konversi link Google Drive ke format thumbnail yang bisa ditampilkan
-function convertGDLink(url) {
-    if (!url) return '';
-    const match = url.match(/(?:\/d\/|id=)([\w-]+)/);
-    if (match && match[1] && url.includes('drive.google.com')) {
-        return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1200`;
-    }
-    return url; // Bukan link Google Drive, kembalikan apa adanya
-}
-
-// Fungsi untuk menginisialisasi form pengaturan slider
-function initSliderSettingsForm() {
-    const form = document.getElementById('sliderSettingsForm');
-    if (!form) return;
-
-    // Muat URL gambar yang tersimpan
-    const savedImageUrls = JSON.parse(localStorage.getItem('sliderImageUrls')) || [];
-    for (let i = 0; i < 6; i++) {
-        const input = document.getElementById(`slideImage${i + 1}`);
-        if (input && savedImageUrls[i]) {
-            input.value = savedImageUrls[i];
-        }
-    }
-
-    form.addEventListener('submit', function(event) {
-        event.preventDefault();
-        const newImageUrls = [];
-        for (let i = 0; i < 6; i++) {
-            const input = document.getElementById(`slideImage${i + 1}`);
-            if (input && input.value) {
-                // Konversi otomatis jika link Google Drive
-                newImageUrls.push(convertGDLink(input.value));
-            } else {
-                newImageUrls.push('');
-            }
-        }
-        localStorage.setItem('sliderImageUrls', JSON.stringify(newImageUrls));
-        alert('Pengaturan berhasil disimpan! Slider akan diperbarui.');
-        showPage('dashboard'); 
-    });
-}
-
-// Fungsi untuk memuat gambar slider dari localStorage saat dashboard dimuat
-function loadSliderImages() {
-    const savedImageUrls = JSON.parse(localStorage.getItem('sliderImageUrls')) || [];
-    const defaultImageUrls = [
-        "https://drive.google.com/thumbnail?id=1gqpsBofXZIHAmZCCt_XeHkqj8MjdsWYs&sz=w1200",
-        "https://drive.google.com/thumbnail?id=11mQCi5h3sikm4WQuaDtf7U-SiiPULXyH&sz=w1200",
-        "https://drive.google.com/thumbnail?id=1wkgiGR1U76m55rsh_47hED4j58uLlWxZ&sz=w1200",
-        "https://drive.google.com/thumbnail?id=1cf_h2eqaoiPrEzh96xfZJdQpZ26y5O_y&sz=w1200",
-        "https://drive.google.com/thumbnail?id=1SbT-1S2KVg3BJswr1M0YhCKVmB3hBvmn&sz=w1200",
-        "https://drive.google.com/thumbnail?id=16duM3ujQBF_PfpDoIfcJGW-ytgqJgL-5&sz=w1200"
-    ];
-
-    const imageUrlsToUse = savedImageUrls.filter(url => url !== '').length > 0 ? savedImageUrls : defaultImageUrls;
-
-    let sliderItemsHtml = '';
-    imageUrlsToUse.forEach((url, i) => {
-        if (url) {
-            sliderItemsHtml += `
-                <div class="slider-item relative">
-                    <img src="${url}" alt="Slider ${i + 1}">
-                    <div class="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black/60 to-transparent text-white">
-                        <h5 class="font-black text-lg">Dokumentasi ${i + 1}</h5>
-                        <p class="text-xs opacity-80">${i % 2 === 0 ? 'Sistem Informasi Penyimpanan Data Terpadu' : 'Portal Internal PPS Raharjo Sragen'}</p>
-                    </div>
-                </div>
-            `;
-        }
-    });
-
-    // Perbarui konten slider di dashboard
-    const sliderTrack = document.querySelector('.slider-track');
-    if (sliderTrack) {
-        sliderTrack.innerHTML = sliderItemsHtml;
-    }
-}
-
-// Panggil loadSliderImages saat halaman dimuat pertama kali
+// Panggil showPage saat halaman dimuat pertama kali
 document.addEventListener('DOMContentLoaded', () => {
     initIcons();
     showPage('dashboard'); // Tampilkan dashboard secara default
-    loadSliderImages(); // Muat gambar slider setelah dashboard ditampilkan
 });
 
 function initMutasiForm() {
