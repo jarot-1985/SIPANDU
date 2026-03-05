@@ -67,8 +67,17 @@ function showPage(pageId) {
         'dashboard': `
             <!-- Hero Section -->
             <div class="bg-gradient-to-br from-sky-500 to-indigo-600 rounded-3xl p-8 text-white relative overflow-hidden shadow-2xl shadow-sky-200">
+                <!-- Logo PPSDI di Pojok Kanan Atas -->
+                <div class="absolute top-8 right-8 z-20">
+                    <div class="relative group">
+                        <div class="absolute -inset-2 bg-white/20 rounded-3xl blur-xl opacity-25 group-hover:opacity-60 transition duration-1000 group-hover:duration-200"></div>
+                        <img src="logo-ppsdri-raharjo.png" alt="Logo PPSDI" class="relative w-48 h-48 object-contain rounded-3xl bg-white/10 p-3 shadow-2xl ring-2 ring-white/40" onerror="this.style.display='none'">
+                    </div>
+                </div>
+
                 <div class="relative z-10 max-w-5xl">
-                    <div class="flex items-center gap-8 mb-6">
+                    <div class="flex items-center gap-10 mb-6">
+                        <!-- Logo Maskot Sipandu -->
                         <div class="relative group shrink-0">
                             <div class="absolute -inset-2 bg-white/20 rounded-3xl blur-xl opacity-25 group-hover:opacity-60 transition duration-1000 group-hover:duration-200"></div>
                             <img src="maskot-sipandu.png" alt="Logo Sipandu" class="relative w-48 h-48 object-contain rounded-3xl bg-white/10 p-3 shadow-2xl ring-2 ring-white/40" onerror="this.style.display='none'">
@@ -92,7 +101,7 @@ function showPage(pageId) {
             <!-- Gallery Slider (Replacing Stats Grid) -->
             <div class="space-y-4">
                 <div class="flex items-center justify-between">
-                    <h4 class="text-sm font-black text-slate-800 uppercase tracking-widest">Galeri & Dokumentasi</h4>
+                    <h4 class="text-sm font-black text-slate-800 uppercase tracking-widest">Galery PPS Raharjo Sragen </h4>
                     <span class="text-[10px] text-slate-400 font-bold uppercase">Geser Otomatis</span>
                 </div>
                 <div class="slider-container shadow-xl border-4 border-white">
@@ -100,44 +109,68 @@ function showPage(pageId) {
                         <!-- GANTI URL GAMBAR DI SINI SEWAKTU-WAKTU (SLIDE 1-6) -->
                         <div class="slider-item relative">
                             <img src="https://drive.google.com/thumbnail?id=1gqpsBofXZIHAmZCCt_XeHkqj8MjdsWYs&sz=w1200" alt="Slider 1">
-                            <div class="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black/60 to-transparent text-white">
-                                <h5 class="font-black text-lg">Slide 1</h5>
-                                <p class="text-xs opacity-80">Filosofi Logo PPS Raharjo</p>
+                            <div class="absolute bottom-0 inset-x-0 p-8 bg-gradient-to-t from-black/80 via-black/40 to-transparent text-white">
+                                <div class="inline-block bg-sky-500/90 px-4 py-1.5 rounded-xl mb-3 shadow-xl backdrop-blur-sm">
+                                    <h5 class="font-black text-2xl drop-shadow-lg">Slide 1</h5>
+                                </div>
+                                <div class="block bg-sky-400/30 px-4 py-2 rounded-xl backdrop-blur-sm border border-white/10 w-fit">
+                                    <p class="text-sm font-bold drop-shadow-md">Filosofi Logo PPS Raharjo</p>
+                                </div>
                             </div>
                         </div>
                         <div class="slider-item relative">
                             <img src="https://drive.google.com/thumbnail?id=11mQCi5h3sikm4WQuaDtf7U-SiiPULXyH&sz=w1200" alt="Slider 2">
-                            <div class="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black/60 to-transparent text-white">
-                                <h5 class="font-black text-lg">Slide 2</h5>
-                                <p class="text-xs opacity-80">Kepala Dinas Sosial Provinsi Jawa Tengah Bersama Pegawai PPS Raharjo dan RPS</p>
+                            <div class="absolute bottom-0 inset-x-0 p-8 bg-gradient-to-t from-black/80 via-black/40 to-transparent text-white">
+                                <div class="inline-block bg-sky-500/90 px-4 py-1.5 rounded-xl mb-3 shadow-xl backdrop-blur-sm">
+                                    <h5 class="font-black text-2xl drop-shadow-lg">Slide 2</h5>
+                                </div>
+                                <div class="block bg-sky-400/30 px-4 py-2 rounded-xl backdrop-blur-sm border border-white/10 w-fit">
+                                    <p class="text-sm font-bold drop-shadow-md">Kepala Dinas Sosial Provinsi Jawa Tengah Bersama Pegawai PPS Raharjo dan RPS</p>
+                                </div>
                             </div>
                         </div>
                         <div class="slider-item relative">
                             <img src="https://drive.google.com/thumbnail?id=1wkgiGR1U76m55rsh_47hED4j58uLlWxZ&sz=w1200" alt="Slider 3">
-                            <div class="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black/60 to-transparent text-white">
-                                <h5 class="font-black text-lg">Slide 3</h5>
-                                <p class="text-xs opacity-80">Kepala PPS Raharjo Sragen</p>
+                            <div class="absolute bottom-0 inset-x-0 p-8 bg-gradient-to-t from-black/80 via-black/40 to-transparent text-white">
+                                <div class="inline-block bg-sky-500/90 px-4 py-1.5 rounded-xl mb-3 shadow-xl backdrop-blur-sm">
+                                    <h5 class="font-black text-2xl drop-shadow-lg">Slide 3</h5>
+                                </div>
+                                <div class="block bg-sky-400/30 px-4 py-2 rounded-xl backdrop-blur-sm border border-white/10 w-fit">
+                                    <p class="text-sm font-bold drop-shadow-md">Kepala PPS Raharjo Sragen</p>
+                                </div>
                             </div>
                         </div>
                         <div class="slider-item relative">
                             <img src="https://drive.google.com/thumbnail?id=1cf_h2eqaoiPrEzh96xfZJdQpZ26y5O_y&sz=w1200" alt="Slider 4">
-                            <div class="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black/60 to-transparent text-white">
-                                <h5 class="font-black text-lg">Slide 4</h5>
-                                <p class="text-xs opacity-80">Galery Penerima Manfaat</p>
+                            <div class="absolute bottom-0 inset-x-0 p-8 bg-gradient-to-t from-black/80 via-black/40 to-transparent text-white">
+                                <div class="inline-block bg-sky-500/90 px-4 py-1.5 rounded-xl mb-3 shadow-xl backdrop-blur-sm">
+                                    <h5 class="font-black text-2xl drop-shadow-lg">Slide 4</h5>
+                                </div>
+                                <div class="block bg-sky-400/30 px-4 py-2 rounded-xl backdrop-blur-sm border border-white/10 w-fit">
+                                    <p class="text-sm font-bold drop-shadow-md">Kepala Bidang Rehabilitasi Sosial Dinsos Prov Jateng bersama Penerima Manfaat</p>
+                                </div>
                             </div>
                         </div>
                         <div class="slider-item relative">
                             <img src="https://drive.google.com/thumbnail?id=1SbT-1S2KVg3BJswr1M0YhCKVmB3hBvmn&sz=w1200" alt="Slider 5">
-                            <div class="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black/60 to-transparent text-white">
-                                <h5 class="font-black text-lg">Dokumentasi 5</h5>
-                                <p class="text-xs opacity-80">Galery Penerima Manfaat</p>
+                            <div class="absolute bottom-0 inset-x-0 p-8 bg-gradient-to-t from-black/80 via-black/40 to-transparent text-white">
+                                <div class="inline-block bg-sky-500/90 px-4 py-1.5 rounded-xl mb-3 shadow-xl backdrop-blur-sm">
+                                    <h5 class="font-black text-2xl drop-shadow-lg">Slide 5</h5>
+                                </div>
+                                <div class="block bg-sky-400/30 px-4 py-2 rounded-xl backdrop-blur-sm border border-white/10 w-fit">
+                                    <p class="text-sm font-bold drop-shadow-md">Galery Penerima Manfaat</p>
+                                </div>
                             </div>
                         </div>
                         <div class="slider-item relative">
                             <img src="https://drive.google.com/thumbnail?id=16duM3ujQBF_PfpDoIfcJGW-ytgqJgL-5&sz=w1200" alt="Slider 6">
-                            <div class="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black/60 to-transparent text-white">
-                                <h5 class="font-black text-lg">Slide 6</h5>
-                                <p class="text-xs opacity-80">Pemeriksaan Kesehatan Penerima Manfaat</p>
+                            <div class="absolute bottom-0 inset-x-0 p-8 bg-gradient-to-t from-black/80 via-black/40 to-transparent text-white">
+                                <div class="inline-block bg-sky-500/90 px-4 py-1.5 rounded-xl mb-3 shadow-xl backdrop-blur-sm">
+                                    <h5 class="font-black text-2xl drop-shadow-lg">Slide 6</h5>
+                                </div>
+                                <div class="block bg-sky-400/30 px-4 py-2 rounded-xl backdrop-blur-sm border border-white/10 w-fit">
+                                    <p class="text-sm font-bold drop-shadow-md">Pemeriksaan Kesehatan Penerima Manfaat</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -151,14 +184,14 @@ function showPage(pageId) {
                         <i data-lucide="mouse-pointer-click" class="w-5 h-5 text-sky-500"></i>
                         <h4 class="font-black text-sm uppercase tracking-wider">Navigasi Dropdown</h4>
                     </div>
-                    <p class="text-sm text-slate-500 leading-relaxed">Klik pada nama kelompok kerja di sidebar untuk membuka sub-menu dan mengakses data spesifik yang Anda butuhkan.</p>
+                    <p class="text-sm text-slate-500 leading-relaxed">Klik pada Menu pada sidebar untuk membuka sub-menu dan mengakses data yang Anda butuhkan.</p>
                 </div>
                 <div class="bg-sky-50 p-8 rounded-3xl border border-sky-100 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all space-y-4">
                     <div class="flex items-center space-x-3 mb-2">
                         <i data-lucide="info" class="w-5 h-5 text-sky-600"></i>
-                        <h4 class="font-black text-sm uppercase tracking-wider text-sky-800">Satu Pintu</h4>
+                        <h4 class="font-black text-sm uppercase tracking-wider text-sky-800">Data Terpadu</h4>
                     </div>
-                    <p class="text-sm text-sky-700/70 leading-relaxed">Seluruh laporan dan data transaksi belanja kini terintegrasi dalam satu sistem untuk memudahkan monitoring pimpinan.</p>
+                    <p class="text-sm text-sky-700/70 leading-relaxed">Seluruh data dan Laporan Panti dan RPS terintegrasi dalam satu sistem untuk memudahkan monitoring pimpinan.</p>
                 </div>
             </div>
         `,
