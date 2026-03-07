@@ -1,516 +1,435 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { initializeApp } from 'firebase/app';
-import { 
-  getFirestore, 
-  collection, 
-  doc, 
-  onSnapshot, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc,
-} from 'firebase/firestore';
-import { 
-  getAuth, 
-  signInWithCustomToken, 
-  signInAnonymously, 
-  onAuthStateChanged 
-} from 'firebase/auth';
-import { 
-  FileText, 
-  Search, 
-  Trash2, 
-  Edit3, 
-  FileUp, 
-  Loader2,
-  Calendar,
-  Layers,
-  Send,
-  Lock,
-  LogOut,
-  ChevronRight,
-  Info,
-  Clock,
-  ExternalLink,
-  Eye,
-  Plus,
-  AlertCircle,
-  Download
-} from 'lucide-react';
-
-// --- Konfigurasi Firebase ---
-const firebaseConfig = JSON.parse(__firebase_config);
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const appId = typeof __app_id !== 'undefined' ? __app_id : 'info-portal-system-v2';
-
-const getCollectionRef = () => collection(db, 'artifacts', appId, 'public', 'data', 'pengumuman');
-const getDocRef = (id) => doc(db, 'artifacts', appId, 'public', 'data', 'pengumuman', id);
-
-export default function App() {
-  const [activeTab, setActiveTab] = useState('list');
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [notif, setNotif] = useState({ show: false, msg: '', type: 'success' });
-  const [dataInformasi, setDataInformasi] = useState([]);
-  const [selectedId, setSelectedId] = useState(null);
-  const [editId, setEditId] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [pdfError, setPdfError] = useState(false);
-  
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [adminPass, setAdminPass] = useState('');
-
-  const initialForm = {
-    no: '',
-    tanggalPublikasi: '',
-    judul: '',
-    konten: '',
-    prioritas: 'Normal',
-    statusPublikasi: 'Publish',
-    pdfUrl: '', 
-    namaFile: '',
-  };
-
-  const [form, setForm] = useState(initialForm);
-
-  useEffect(() => {
-    const initAuth = async () => {
-      try {
-        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-          await signInWithCustomToken(auth, __initial_auth_token);
-        } else {
-          await signInAnonymously(auth);
-        }
-      } catch (err) { console.error("Auth Error:", err); }
-    };
-    initAuth();
-    const unsubscribe = onAuthStateChanged(auth, (u) => {
-      setUser(u);
-      setLoading(false);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    if (!user) return;
-    const q = getCollectionRef();
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      const sortedData = data.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-      setDataInformasi(sortedData);
-      if (sortedData.length > 0 && !selectedId) {
-        setSelectedId(sortedData[0].id);
-      }
-    }, (error) => {
-      console.error("Firestore Error:", error);
-      showNotif("Gagal sinkronisasi data", "error");
-    });
-    return () => unsubscribe();
-  }, [user]);
-
-  // Reset error PDF setiap kali pilihan berubah
-  useEffect(() => {
-    setPdfError(false);
-  }, [selectedId]);
-
-  const showNotif = (msg, type = 'success') => {
-    setNotif({ show: true, msg, type });
-    setTimeout(() => setNotif({ show: false, msg: '', type: 'success' }), 3000);
-  };
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (file.type !== 'application/pdf') {
-        showNotif("Hanya file PDF yang didukung", "error");
-        return;
-      }
-      // Simulasi upload dengan Blob URL (Untuk produksi, ganti dengan Firebase Storage)
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setForm(prev => ({ 
-          ...prev, 
-          namaFile: file.name,
-          pdfUrl: event.target.result 
-        }));
-        showNotif("File PDF berhasil dimuat ke memori");
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleAdminLogin = (e) => {
-    e.preventDefault();
-    if (adminPass === '123') {
-      setIsAdmin(true);
-      setShowLoginModal(false);
-      setAdminPass('');
-      showNotif("Login Admin Berhasil");
-    } else {
-      showNotif("Password Salah!", "error");
-    }
-  };
-
-  const handleLogout = () => {
-    setIsAdmin(false);
-    setActiveTab('list');
-    showNotif("Keluar dari Mode Admin");
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!user || !isAdmin) return;
-
-    try {
-      const payload = { 
-        ...form, 
-        judul: form.judul.toUpperCase(),
-        updatedAt: Date.now(),
-        createdAt: editId ? (dataInformasi.find(i => i.id === editId)?.createdAt || Date.now()) : Date.now()
-      };
-
-      if (editId) {
-        await updateDoc(getDocRef(editId), payload);
-        showNotif("Informasi diperbarui");
-      } else {
-        const docRef = await addDoc(getCollectionRef(), payload);
-        setSelectedId(docRef.id);
-        showNotif("Informasi berhasil dipublikasikan");
-      }
-
-      setForm(initialForm);
-      setEditId(null);
-      setActiveTab('list');
-    } catch (err) {
-      console.error("Submit Error:", err);
-      showNotif("Gagal menyimpan data", "error");
-    }
-  };
-
-  const handleEdit = (item) => {
-    setForm({ ...item });
-    setEditId(item.id);
-    setActiveTab('form');
-  };
-
-  const handleDelete = async (id) => {
-    if (window.confirm("Hapus data ini secara permanen?")) {
-      try {
-        await deleteDoc(getDocRef(id));
-        showNotif("Data Berhasil Dihapus");
-        if (selectedId === id) setSelectedId(dataInformasi[0]?.id || null);
-      } catch (err) {
-        showNotif("Gagal menghapus data", "error");
-      }
-    }
-  };
-
-  const filteredData = useMemo(() => {
-    return dataInformasi.filter(item => 
-      (item.judul || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (item.no || '').toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [dataInformasi, searchTerm]);
-
-  const currentSelection = useMemo(() => {
-    return dataInformasi.find(item => item.id === selectedId);
-  }, [dataInformasi, selectedId]);
-
-  if (loading) return (
-    <div className="h-screen w-full flex items-center justify-center bg-slate-50">
-      <Loader2 className="animate-spin text-indigo-600" size={32} />
-    </div>
-  );
-
-  return (
-    <div className="h-screen flex flex-col bg-white text-slate-900 overflow-hidden font-sans">
-      {/* Notifikasi */}
-      {notif.show && (
-        <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-[100] px-4 py-2 rounded-full shadow-lg flex items-center gap-2 animate-in fade-in slide-in-from-top-2 ${notif.type === 'error' ? 'bg-rose-600' : 'bg-slate-800'} text-white`}>
-          <span className="text-[9px] font-bold uppercase tracking-wider">{notif.msg}</span>
-        </div>
-      )}
-
-      {/* Header Utama Compact yes */}
-      <header className="h-14 border-b border-slate-100 px-6 flex items-center justify-between flex-none bg-white z-50">
-        <div className="flex items-center gap-3">
-          <div className="bg-indigo-600 p-2 rounded-lg text-white shadow-md">
-            <FileText size={18} />
-          </div>
-          <div>
-            <h1 className="font-black text-xs uppercase tracking-tight">E-Portal Dokumen</h1>
-            <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest leading-none">{isAdmin ? 'Mode Administrator' : 'Mode Publik'}</p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {isAdmin ? (
-            <>
-              <button 
-                onClick={() => { setEditId(null); setForm(initialForm); setActiveTab(activeTab === 'form' ? 'list' : 'form'); }}
-                className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all flex items-center gap-2 shadow-md"
-              >
-                {activeTab === 'form' ? <ChevronRight size={12} className="rotate-180" /> : <Plus size={12} />}
-                {activeTab === 'form' ? 'Kembali' : 'Upload Baru'}
-              </button>
-              <button onClick={handleLogout} className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-all" title="Logout"><LogOut size={16} /></button>
-            </>
-          ) : (
-            <button onClick={() => setShowLoginModal(true)} className="px-4 py-2 border border-slate-200 text-slate-600 rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-slate-50 transition-all">
-              <Lock size={12} /> Login Admin
-            </button>
-          )}
-        </div>
-      </header>
-
-      {/* Area Konten Utama */}
-      <main className="flex-1 flex overflow-hidden">
-        {activeTab === 'form' ? (
-          <div className="flex-1 overflow-y-auto bg-slate-50 p-6">
-            <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
-              <div className="bg-slate-900 p-6 text-white flex justify-between items-center">
-                <div>
-                  <h2 className="text-sm font-black uppercase tracking-tight">{editId ? 'Ubah Data Dokumen' : 'Publikasi Dokumen Baru'}</h2>
-                  <p className="text-slate-400 text-[8px] font-bold uppercase tracking-widest mt-1">Pastikan format file adalah PDF</p>
-                </div>
-              </div>
-              <form onSubmit={handleSubmit} className="p-6 space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Nomor Pengumuman</label>
-                    <input required value={form.no} onChange={e => setForm({...form, no: e.target.value})} className="w-full bg-slate-50 border border-slate-100 rounded-lg px-4 py-2.5 outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-[11px]" placeholder="Contoh: 001/KM/2026" />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Tanggal Terbit</label>
-                    <input type="date" required value={form.tanggalPublikasi} onChange={e => setForm({...form, tanggalPublikasi: e.target.value})} className="w-full bg-slate-50 border border-slate-100 rounded-lg px-4 py-2.5 outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-[11px]" />
-                  </div>
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Judul Utama</label>
-                  <input required value={form.judul} onChange={e => setForm({...form, judul: e.target.value.toUpperCase()})} className="w-full bg-slate-50 border border-slate-100 rounded-lg px-4 py-2.5 outline-none focus:ring-2 focus:ring-indigo-500 font-black text-[11px] uppercase" placeholder="Masukkan judul dokumen..." />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Ringkasan Isi</label>
-                  <textarea rows="3" required value={form.konten} onChange={e => setForm({...form, konten: e.target.value})} className="w-full bg-slate-50 border border-slate-100 rounded-lg px-4 py-2.5 outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-[11px] leading-relaxed" placeholder="Tuliskan ringkasan singkat isi pengumuman..." />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Unggah File PDF</label>
-                  <div className="relative group">
-                    <input type="file" accept=".pdf" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
-                    <div className={`w-full border-2 border-dashed rounded-xl p-6 text-center transition-all ${form.namaFile ? 'border-emerald-400 bg-emerald-50' : 'border-slate-200 bg-slate-50 group-hover:border-indigo-300'}`}>
-                      <FileUp size={24} className={`mx-auto mb-2 ${form.namaFile ? 'text-emerald-500' : 'text-slate-300'}`} />
-                      <p className={`text-[9px] font-black uppercase tracking-widest ${form.namaFile ? 'text-emerald-600' : 'text-slate-400'}`}>
-                        {form.namaFile || "Pilih File atau Tarik ke Sini"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                   <div className="space-y-1">
-                     <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Tingkat Urgensi</label>
-                     <select value={form.prioritas} onChange={e => setForm({...form, prioritas: e.target.value})} className="w-full bg-slate-50 border border-slate-100 px-3 py-2 rounded-lg font-bold text-[10px] outline-none">
-                       <option>Normal</option><option>Penting</option><option>Segera</option>
-                     </select>
-                   </div>
-                   <div className="space-y-1">
-                     <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Status Publikasi</label>
-                     <select value={form.statusPublikasi} onChange={e => setForm({...form, statusPublikasi: e.target.value})} className="w-full bg-slate-50 border border-slate-100 px-3 py-2 rounded-lg font-bold text-[10px] outline-none">
-                       <option>Draft</option><option>Publish</option><option>Arsip</option>
-                     </select>
-                   </div>
-                </div>
-
-                <button type="submit" className="w-full bg-indigo-600 text-white font-black py-4 rounded-xl uppercase tracking-widest text-[10px] shadow-lg hover:bg-indigo-700 transition-all flex items-center justify-center gap-2">
-                  <Send size={14} /> Simpan & Publikasikan
-                </button>
-              </form>
-            </div>
-          </div>
-        ) : (
-          <>
-            {/* Sidebar Daftar Padat */}
-            <aside className="w-72 border-r border-slate-100 flex flex-col bg-white">
-              <div className="p-3 border-b border-slate-50">
-                <div className="relative">
-                  <Search size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" />
-                  <input 
-                    placeholder="Cari nomor/judul..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
-                    className="w-full bg-slate-50 border-none rounded-lg pl-8 pr-3 py-2 text-[10px] font-bold outline-none ring-1 ring-slate-100 focus:ring-indigo-500"
-                  />
-                </div>
-              </div>
-
-              <div className="flex-1 overflow-y-auto p-2 space-y-1 custom-scrollbar">
-                {filteredData.length === 0 ? (
-                  <div className="p-4 text-center opacity-40">
-                    <p className="text-[8px] font-black uppercase tracking-widest">Data Tidak Ditemukan</p>
-                  </div>
-                ) : filteredData.map(item => (
-                  <button 
-                    key={item.id} onClick={() => setSelectedId(item.id)}
-                    className={`w-full text-left p-3 rounded-xl transition-all border ${selectedId === item.id ? 'bg-indigo-600 border-indigo-600 text-white shadow-md' : 'bg-white border-transparent hover:bg-slate-50 text-slate-600'}`}
-                  >
-                    <div className="flex items-center gap-2 mb-1">
-                       <span className={`text-[7px] font-black uppercase px-1.5 py-0.5 rounded ${selectedId === item.id ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-400'}`}>{item.no}</span>
-                       <span className={`text-[7px] font-black uppercase ${selectedId === item.id ? 'text-indigo-200' : 'text-indigo-600'}`}>{item.prioritas}</span>
-                    </div>
-                    <h3 className="text-[10px] font-black uppercase leading-tight line-clamp-2 tracking-tight">{item.judul}</h3>
-                    <div className="mt-2 flex items-center gap-1.5 text-[8px] font-bold opacity-60">
-                      <Calendar size={10} /> {item.tanggalPublikasi}
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </aside>
-
-            {/* Viewer Utama - Fokus pada Dokumen OKE*/}
-            <section className="flex-1 flex flex-col bg-slate-50 overflow-hidden">
-              {currentSelection ? (
-                <div className="flex-1 flex flex-col animate-in fade-in slide-in-from-right-2 duration-300">
-                  {/* Bagian Info Header (Sangat Ringkas) */}
-                  <div className="bg-white border-b border-slate-100 p-4 flex-none z-10">
-                    <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                           <span className="bg-slate-900 text-white px-2 py-0.5 rounded text-[7px] font-black uppercase">NO: {currentSelection.no}</span>
-                           <span className={`px-2 py-0.5 rounded text-[7px] font-black uppercase ${currentSelection.prioritas === 'Segera' ? 'bg-rose-50 text-rose-600' : 'bg-indigo-50 text-indigo-600'}`}>{currentSelection.prioritas}</span>
-                        </div>
-                        <h1 className="text-lg font-black text-slate-900 uppercase tracking-tighter leading-tight">
-                          {currentSelection.judul}
-                        </h1>
-                        <div className="flex items-center gap-4 text-[8px] font-black text-slate-400 uppercase tracking-widest">
-                           <span className="flex items-center gap-1"><Calendar size={10}/> {currentSelection.tanggalPublikasi}</span>
-                           <span className="flex items-center gap-1"><Clock size={10}/> {currentSelection.statusPublikasi}</span>
-                        </div>
-                      </div>
-                      
-                      <div className="flex gap-2">
-                        {isAdmin && (
-                          <>
-                             <button onClick={() => handleEdit(currentSelection)} className="p-2 border border-slate-100 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all" title="Ubah"><Edit3 size={14} /></button>
-                             <button onClick={() => handleDelete(currentSelection.id)} className="p-2 border border-slate-100 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all" title="Hapus"><Trash2 size={14} /></button>
-                          </>
-                        )}
-                        <a 
-                          href={String(currentSelection.pdfUrl)} 
-                          target="_blank" 
-                          rel="noreferrer" 
-                          className="px-3 py-2 bg-slate-900 text-white rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-black"
-                        >
-                          <ExternalLink size={12} /> Buka Tab Baru
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Viewer Dokumen - Memenuhi sisa layar */}
-                  <div className="flex-1 p-3 flex flex-col min-h-0 bg-slate-100">
-                    <div className="flex-1 bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden relative flex flex-col">
-                      {currentSelection.pdfUrl ? (
-                         <>
-                           {!pdfError ? (
-                             <iframe 
-                               src={`${String(currentSelection.pdfUrl)}#toolbar=0&navpanes=0`} 
-                               className="w-full h-full border-none"
-                               title="PDF Preview"
-                               onError={() => setPdfError(true)}
-                             />
-                           ) : (
-                             <div className="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-4">
-                               <div className="w-16 h-16 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center">
-                                 <AlertCircle size={32} />
-                               </div>
-                               <div>
-                                 <h3 className="text-xs font-black uppercase text-slate-800">Pratinjau Terblokir</h3>
-                                 <p className="text-[10px] text-slate-500 max-w-xs mx-auto mt-2 leading-relaxed">
-                                   Browser Anda memblokir pemuatan otomatis dokumen ini karena alasan keamanan atau kebijakan konten.
-                                 </p>
-                               </div>
-                               <div className="flex gap-3">
-                                 <a 
-                                   href={String(currentSelection.pdfUrl)} 
-                                   download={currentSelection.namaFile || 'dokumen.pdf'}
-                                   className="px-6 py-2 bg-indigo-600 text-white rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-md hover:bg-indigo-700"
-                                 >
-                                   <Download size={14}/> Unduh File
-                                 </a>
-                                 <a 
-                                   href={String(currentSelection.pdfUrl)} 
-                                   target="_blank" 
-                                   rel="noreferrer"
-                                   className="px-6 py-2 border border-slate-200 text-slate-600 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-slate-50"
-                                 >
-                                   <ExternalLink size={14}/> Lihat Langsung
-                                 </a>
-                               </div>
-                             </div>
-                           )}
-                           
-                           {/* Hint Tooltip */}
-                           <div className="absolute bottom-4 right-4 bg-white/80 backdrop-blur px-3 py-1.5 rounded-full border border-slate-100 shadow-sm text-[8px] font-bold text-slate-400 pointer-events-none">
-                             Gunakan tombol "Buka Tab Baru" jika tampilan tidak muncul.
-                           </div>
-                         </>
-                      ) : (
-                        <div className="w-full h-full flex flex-col items-center justify-center text-slate-300 gap-3 grayscale opacity-30">
-                          <FileText size={48} />
-                          <p className="text-[10px] font-black uppercase tracking-[0.3em]">Lampiran Tidak Tersedia</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex-1 flex flex-col items-center justify-center opacity-10">
-                  <Layers size={64} className="mb-4 text-indigo-600" />
-                  <p className="text-[10px] font-black uppercase tracking-[0.4em]">Pilih Dokumen</p>
-                </div>
-              )}
-            </section>
-          </>
-        )}
-      </main>
-
-      {/* Login Modal Admin */}
-      {showLoginModal && (
-        <div className="fixed inset-0 z-[110] bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-xs rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="p-8 text-center space-y-6">
-              <div className="w-14 h-14 bg-indigo-600 text-white rounded-2xl flex items-center justify-center mx-auto shadow-xl rotate-3">
-                <Lock size={28} />
-              </div>
-              <div>
-                <h2 className="text-sm font-black uppercase tracking-tight">Otentikasi Admin</h2>
-                <p className="text-slate-400 text-[9px] font-bold uppercase mt-1">Gunakan password standar (123)</p>
-              </div>
-              <form onSubmit={handleAdminLogin} className="space-y-4 text-left">
-                <input 
-                  type="password" autoFocus placeholder="Password" value={adminPass} onChange={e => setAdminPass(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-4 outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-sm text-center tracking-widest"
-                />
-                <button type="submit" className="w-full bg-indigo-600 text-white font-black py-4 rounded-xl uppercase text-[10px] tracking-widest shadow-lg hover:bg-indigo-700 transition-all">Masuk Sekarang</button>
-                <button type="button" onClick={() => setShowLoginModal(false)} className="w-full text-[9px] font-black text-slate-300 uppercase tracking-widest hover:text-rose-500 transition-colors">Batalkan</button>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* CSS Kustom untuk Scrollbar */}
-      <style>{`
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Portal Dokumen Pengumuman</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
-      `}</style>
-    </div>
-  );
+    </style>
+</head>
+<body class="bg-slate-50">
+    <div id="root"></div>
 
-}
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
 
+        // Mock Lucide components for browser compatibility
+        const LucideIcon = ({ name, size = 18, className = "" }) => {
+            useEffect(() => {
+                if (window.lucide) {
+                    window.lucide.createIcons();
+                }
+            }, [name]);
+            return <i data-lucide={name} style={{ width: size, height: size }} className={className}></i>;
+        };
+
+        // Standard Icons
+        const FileText = (props) => <LucideIcon name="file-text" {...props} />;
+        const Search = (props) => <LucideIcon name="search" {...props} />;
+        const Trash2 = (props) => <LucideIcon name="trash-2" {...props} />;
+        const Edit3 = (props) => <LucideIcon name="edit-3" {...props} />;
+        const FileUp = (props) => <LucideIcon name="file-up" {...props} />;
+        const Loader2 = (props) => <LucideIcon name="loader-2" className="animate-spin" {...props} />;
+        const Calendar = (props) => <LucideIcon name="calendar" {...props} />;
+        const Layers = (props) => <LucideIcon name="layers" {...props} />;
+        const Send = (props) => <LucideIcon name="send" {...props} />;
+        const Lock = (props) => <LucideIcon name="lock" {...props} />;
+        const LogOut = (props) => <LucideIcon name="log-out" {...props} />;
+        const ChevronRight = (props) => <LucideIcon name="chevron-right" {...props} />;
+        const Info = (props) => <LucideIcon name="info" {...props} />;
+        const Clock = (props) => <LucideIcon name="clock" {...props} />;
+        const ExternalLink = (props) => <LucideIcon name="external-link" {...props} />;
+        const Eye = (props) => <LucideIcon name="eye" {...props} />;
+        const Plus = (props) => <LucideIcon name="plus" {...props} />;
+        const AlertCircle = (props) => <LucideIcon name="alert-circle" {...props} />;
+        const Download = (props) => <LucideIcon name="download" {...props} />;
+
+        function App() {
+            const [activeTab, setActiveTab] = useState('list');
+            const [loading, setLoading] = useState(false);
+            const [notif, setNotif] = useState({ show: false, msg: '', type: 'success' });
+            const [dataInformasi, setDataInformasi] = useState([
+                {
+                    id: '1',
+                    no: '001/KM/2026',
+                    tanggalPublikasi: '2026-03-01',
+                    judul: 'PENGUMUMAN PELAYANAN PUBLIK',
+                    konten: 'Pemberitahuan terkait jam operasional pelayanan selama bulan Ramadhan.',
+                    prioritas: 'Penting',
+                    statusPublikasi: 'Publish',
+                    pdfUrl: '',
+                    namaFile: ''
+                }
+            ]);
+            const [selectedId, setSelectedId] = useState('1');
+            const [editId, setEditId] = useState(null);
+            const [searchTerm, setSearchTerm] = useState('');
+            const [pdfError, setPdfError] = useState(false);
+            
+            const [isAdmin, setIsAdmin] = useState(false);
+            const [showLoginModal, setShowLoginModal] = useState(false);
+            const [adminPass, setAdminPass] = useState('');
+
+            const initialForm = {
+                no: '',
+                tanggalPublikasi: '',
+                judul: '',
+                konten: '',
+                prioritas: 'Normal',
+                statusPublikasi: 'Publish',
+                pdfUrl: '', 
+                namaFile: '',
+            };
+
+            const [form, setForm] = useState(initialForm);
+
+            const showNotif = (msg, type = 'success') => {
+                setNotif({ show: true, msg, type });
+                setTimeout(() => setNotif({ show: false, msg: '', type: 'success' }), 3000);
+            };
+
+            const handleFileChange = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    if (file.type !== 'application/pdf') {
+                        showNotif("Hanya file PDF yang didukung", "error");
+                        return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        setForm(prev => ({ 
+                            ...prev, 
+                            namaFile: file.name,
+                            pdfUrl: event.target.result 
+                        }));
+                        showNotif("File PDF berhasil dimuat ke memori");
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+
+            const handleAdminLogin = (e) => {
+                e.preventDefault();
+                if (adminPass === '123') {
+                    setIsAdmin(true);
+                    setShowLoginModal(false);
+                    setAdminPass('');
+                    showNotif("Login Admin Berhasil");
+                } else {
+                    showNotif("Password Salah!", "error");
+                }
+            };
+
+            const handleLogout = () => {
+                setIsAdmin(false);
+                setActiveTab('list');
+                showNotif("Keluar dari Mode Admin");
+            };
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                if (!isAdmin) return;
+
+                const payload = { 
+                    ...form, 
+                    id: editId || Date.now().toString(),
+                    judul: form.judul.toUpperCase(),
+                    updatedAt: Date.now(),
+                    createdAt: editId ? (dataInformasi.find(i => i.id === editId)?.createdAt || Date.now()) : Date.now()
+                };
+
+                if (editId) {
+                    setDataInformasi(prev => prev.map(item => item.id === editId ? payload : item));
+                    showNotif("Informasi diperbarui");
+                } else {
+                    setDataInformasi(prev => [payload, ...prev]);
+                    setSelectedId(payload.id);
+                    showNotif("Informasi berhasil dipublikasikan");
+                }
+
+                setForm(initialForm);
+                setEditId(null);
+                setActiveTab('list');
+            };
+
+            const handleEdit = (item) => {
+                setForm({ ...item });
+                setEditId(item.id);
+                setActiveTab('form');
+            };
+
+            const handleDelete = (id) => {
+                if (window.confirm("Hapus data ini secara permanen?")) {
+                    setDataInformasi(prev => prev.filter(item => item.id !== id));
+                    showNotif("Data Berhasil Dihapus");
+                    if (selectedId === id) setSelectedId(dataInformasi[0]?.id || null);
+                }
+            };
+
+            const filteredData = useMemo(() => {
+                return dataInformasi.filter(item => 
+                    (item.judul || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    (item.no || '').toLowerCase().includes(searchTerm.toLowerCase())
+                );
+            }, [dataInformasi, searchTerm]);
+
+            const currentSelection = useMemo(() => {
+                return dataInformasi.find(item => item.id === selectedId);
+            }, [dataInformasi, selectedId]);
+
+            if (loading) return (
+                <div className="h-screen w-full flex items-center justify-center bg-slate-50">
+                    <Loader2 size={32} />
+                </div>
+            );
+
+            return (
+                <div className="h-screen flex flex-col bg-white text-slate-900 overflow-hidden font-sans">
+                    {notif.show && (
+                        <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-[100] px-4 py-2 rounded-full shadow-lg flex items-center gap-2 animate-in fade-in slide-in-from-top-2 ${notif.type === 'error' ? 'bg-rose-600' : 'bg-slate-800'} text-white`}>
+                            <span className="text-[9px] font-bold uppercase tracking-wider">{notif.msg}</span>
+                        </div>
+                    )}
+
+                    <header className="h-14 border-b border-slate-100 px-6 flex items-center justify-between flex-none bg-white z-50">
+                        <div className="flex items-center gap-3">
+                            <div className="bg-indigo-600 p-2 rounded-lg text-white shadow-md">
+                                <FileText size={18} />
+                            </div>
+                            <div>
+                                <h1 className="font-black text-xs uppercase tracking-tight">E-Portal Dokumen</h1>
+                                <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest leading-none">{isAdmin ? 'Mode Administrator' : 'Mode Publik'}</p>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            {isAdmin ? (
+                                <>
+                                    <button 
+                                        onClick={() => { setEditId(null); setForm(initialForm); setActiveTab(activeTab === 'form' ? 'list' : 'form'); }}
+                                        className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all flex items-center gap-2 shadow-md"
+                                    >
+                                        {activeTab === 'form' ? <ChevronRight size={12} className="rotate-180" /> : <Plus size={12} />}
+                                        {activeTab === 'form' ? 'Kembali' : 'Upload Baru'}
+                                    </button>
+                                    <button onClick={handleLogout} className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-all" title="Logout"><LogOut size={16} /></button>
+                                </>
+                            ) : (
+                                <button onClick={() => setShowLoginModal(true)} className="px-4 py-2 border border-slate-200 text-slate-600 rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-slate-50 transition-all">
+                                    <Lock size={12} /> Login Admin
+                                </button>
+                            )}
+                        </div>
+                    </header>
+
+                    <main className="flex-1 flex overflow-hidden">
+                        {activeTab === 'form' ? (
+                            <div className="flex-1 overflow-y-auto bg-slate-50 p-6">
+                                <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
+                                    <div className="bg-slate-900 p-6 text-white flex justify-between items-center">
+                                        <div>
+                                            <h2 className="text-sm font-black uppercase tracking-tight">{editId ? 'Ubah Data Dokumen' : 'Publikasi Dokumen Baru'}</h2>
+                                            <p className="text-slate-400 text-[8px] font-bold uppercase tracking-widest mt-1">Pastikan format file adalah PDF</p>
+                                        </div>
+                                    </div>
+                                    <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="space-y-1">
+                                                <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Nomor Pengumuman</label>
+                                                <input required value={form.no} onChange={e => setForm({...form, no: e.target.value})} className="w-full bg-slate-50 border border-slate-100 rounded-lg px-4 py-2.5 outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-[11px]" placeholder="Contoh: 001/KM/2026" />
+                                            </div>
+                                            <div className="space-y-1">
+                                                <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Tanggal Terbit</label>
+                                                <input type="date" required value={form.tanggalPublikasi} onChange={e => setForm({...form, tanggalPublikasi: e.target.value})} className="w-full bg-slate-50 border border-slate-100 rounded-lg px-4 py-2.5 outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-[11px]" />
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-1">
+                                            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Judul Utama</label>
+                                            <input required value={form.judul} onChange={e => setForm({...form, judul: e.target.value.toUpperCase()})} className="w-full bg-slate-50 border border-slate-100 rounded-lg px-4 py-2.5 outline-none focus:ring-2 focus:ring-indigo-500 font-black text-[11px] uppercase" placeholder="Masukkan judul dokumen..." />
+                                        </div>
+
+                                        <div className="space-y-1">
+                                            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Ringkasan Isi</label>
+                                            <textarea rows="3" required value={form.konten} onChange={e => setForm({...form, konten: e.target.value})} className="w-full bg-slate-50 border border-slate-100 rounded-lg px-4 py-2.5 outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-[11px] leading-relaxed" placeholder="Tuliskan ringkasan singkat isi pengumuman..." />
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Unggah File PDF</label>
+                                            <div className="relative group">
+                                                <input type="file" accept=".pdf" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                                                <div className={`w-full border-2 border-dashed rounded-xl p-6 text-center transition-all ${form.namaFile ? 'border-emerald-400 bg-emerald-50' : 'border-slate-200 bg-slate-50 group-hover:border-indigo-300'}`}>
+                                                    <FileUp size={24} className={`mx-auto mb-2 ${form.namaFile ? 'text-emerald-500' : 'text-slate-300'}`} />
+                                                    <p className={`text-[9px] font-black uppercase tracking-widest ${form.namaFile ? 'text-emerald-600' : 'text-slate-400'}`}>
+                                                        {form.namaFile || "Pilih File atau Tarik ke Sini"}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="space-y-1">
+                                                <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Tingkat Urgensi</label>
+                                                <select value={form.prioritas} onChange={e => setForm({...form, prioritas: e.target.value})} className="w-full bg-slate-50 border border-slate-100 px-3 py-2 rounded-lg font-bold text-[10px] outline-none">
+                                                    <option>Normal</option><option>Penting</option><option>Segera</option>
+                                                </select>
+                                            </div>
+                                            <div className="space-y-1">
+                                                <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Status Publikasi</label>
+                                                <select value={form.statusPublikasi} onChange={e => setForm({...form, statusPublikasi: e.target.value})} className="w-full bg-slate-50 border border-slate-100 px-3 py-2 rounded-lg font-bold text-[10px] outline-none">
+                                                    <option>Draft</option><option>Publish</option><option>Arsip</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <button type="submit" className="w-full bg-indigo-600 text-white font-black py-4 rounded-xl uppercase tracking-widest text-[10px] shadow-lg hover:bg-indigo-700 transition-all flex items-center justify-center gap-2">
+                                            <Send size={14} /> Simpan & Publikasikan
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        ) : (
+                            <>
+                                <aside className="w-72 border-r border-slate-100 flex flex-col bg-white">
+                                    <div className="p-3 border-b border-slate-50">
+                                        <div className="relative">
+                                            <Search size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" />
+                                            <input 
+                                                placeholder="Cari nomor/judul..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
+                                                className="w-full bg-slate-50 border-none rounded-lg pl-8 pr-3 py-2 text-[10px] font-bold outline-none ring-1 ring-slate-100 focus:ring-indigo-500"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="flex-1 overflow-y-auto p-2 space-y-1 custom-scrollbar">
+                                        {filteredData.length === 0 ? (
+                                            <div className="p-4 text-center opacity-40">
+                                                <p className="text-[8px] font-black uppercase tracking-widest">Data Tidak Ditemukan</p>
+                                            </div>
+                                        ) : filteredData.map(item => (
+                                            <button 
+                                                key={item.id} onClick={() => setSelectedId(item.id)}
+                                                className={`w-full text-left p-3 rounded-xl transition-all border ${selectedId === item.id ? 'bg-indigo-600 border-indigo-600 text-white shadow-md' : 'bg-white border-transparent hover:bg-slate-50 text-slate-600'}`}
+                                            >
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <span className={`text-[7px] font-black uppercase px-1.5 py-0.5 rounded ${selectedId === item.id ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-400'}`}>{item.no}</span>
+                                                    <span className={`text-[7px] font-black uppercase ${selectedId === item.id ? 'text-indigo-200' : 'text-indigo-600'}`}>{item.prioritas}</span>
+                                                </div>
+                                                <h3 className="text-[10px] font-black uppercase leading-tight line-clamp-2 tracking-tight">{item.judul}</h3>
+                                                <div className="mt-2 flex items-center gap-1.5 text-[8px] font-bold opacity-60">
+                                                    <Calendar size={10} /> {item.tanggalPublikasi}
+                                                </div>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </aside>
+
+                                <section className="flex-1 flex flex-col bg-slate-50 overflow-hidden">
+                                    {currentSelection ? (
+                                        <div className="flex-1 flex flex-col animate-in fade-in slide-in-from-right-2 duration-300">
+                                            <div className="bg-white border-b border-slate-100 p-4 flex-none z-10">
+                                                <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                                    <div className="space-y-1">
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="bg-slate-900 text-white px-2 py-0.5 rounded text-[7px] font-black uppercase">NO: {currentSelection.no}</span>
+                                                            <span className={`px-2 py-0.5 rounded text-[7px] font-black uppercase ${currentSelection.prioritas === 'Segera' ? 'bg-rose-50 text-rose-600' : 'bg-indigo-50 text-indigo-600'}`}>{currentSelection.prioritas}</span>
+                                                        </div>
+                                                        <h1 className="text-lg font-black text-slate-900 uppercase tracking-tighter leading-tight">
+                                                            {currentSelection.judul}
+                                                        </h1>
+                                                        <div className="flex items-center gap-4 text-[8px] font-black text-slate-400 uppercase tracking-widest">
+                                                            <span className="flex items-center gap-1"><Calendar size={10}/> {currentSelection.tanggalPublikasi}</span>
+                                                            <span className="flex items-center gap-1"><Clock size={10}/> {currentSelection.statusPublikasi}</span>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div className="flex gap-2">
+                                                        {isAdmin && (
+                                                            <>
+                                                                <button onClick={() => handleEdit(currentSelection)} className="p-2 border border-slate-100 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all" title="Ubah"><Edit3 size={14} /></button>
+                                                                <button onClick={() => handleDelete(currentSelection.id)} className="p-2 border border-slate-100 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all" title="Hapus"><Trash2 size={14} /></button>
+                                                            </>
+                                                        )}
+                                                        <a 
+                                                            href={currentSelection.pdfUrl || '#'} 
+                                                            target="_blank" 
+                                                            rel="noreferrer" 
+                                                            className="px-3 py-2 bg-slate-900 text-white rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-black"
+                                                        >
+                                                            <ExternalLink size={12} /> Buka Tab Baru
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex-1 p-3 flex flex-col min-h-0 bg-slate-100">
+                                                <div className="flex-1 bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden relative flex flex-col">
+                                                    {currentSelection.pdfUrl ? (
+                                                        <iframe 
+                                                            src={`${currentSelection.pdfUrl}#toolbar=0&navpanes=0`} 
+                                                            className="w-full h-full border-none"
+                                                            title="PDF Preview"
+                                                        />
+                                                    ) : (
+                                                        <div className="w-full h-full flex flex-col items-center justify-center text-slate-300 gap-3 grayscale opacity-30">
+                                                            <FileText size={48} />
+                                                            <p className="text-[10px] font-black uppercase tracking-[0.3em]">Lampiran Tidak Tersedia</p>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="flex-1 flex flex-col items-center justify-center opacity-10">
+                                            <Layers size={64} className="mb-4 text-indigo-600" />
+                                            <p className="text-[10px] font-black uppercase tracking-[0.4em]">Pilih Dokumen</p>
+                                        </div>
+                                    )}
+                                </section>
+                            </>
+                        )}
+                    </main>
+
+                    {showLoginModal && (
+                        <div className="fixed inset-0 z-[110] bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4">
+                            <div className="bg-white w-full max-w-xs rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+                                <div className="p-8 text-center space-y-6">
+                                    <div className="w-14 h-14 bg-indigo-600 text-white rounded-2xl flex items-center justify-center mx-auto shadow-xl rotate-3">
+                                        <Lock size={28} />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-sm font-black uppercase tracking-tight">Otentikasi Admin</h2>
+                                        <p className="text-slate-400 text-[9px] font-bold uppercase mt-1">Gunakan password standar (123)</p>
+                                    </div>
+                                    <form onSubmit={handleAdminLogin} className="space-y-4 text-left">
+                                        <input 
+                                            type="password" autoFocus placeholder="Password" value={adminPass} onChange={e => setAdminPass(e.target.value)}
+                                            className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-4 outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-sm text-center tracking-widest"
+                                        />
+                                        <button type="submit" className="w-full bg-indigo-600 text-white font-black py-4 rounded-xl uppercase text-[10px] tracking-widest shadow-lg hover:bg-indigo-700 transition-all">Masuk Sekarang</button>
+                                        <button type="button" onClick={() => setShowLoginModal(false)} className="w-full text-[9px] font-black text-slate-300 uppercase tracking-widest hover:text-rose-500 transition-colors">Batalkan</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
