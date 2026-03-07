@@ -677,15 +677,26 @@ function initMutasiForm() {
                 const id = btn.getAttribute('data-id');
                 const action = btn.getAttribute('data-action');
                 if (action === 'delete') {
-                    if (confirm('Hapus data ini?')) {
-                        if (useDB) {
-                            const del = await supa.from('mutasi_pm').delete().eq('id', id);
-                            if (del.error) { alert('Gagal menghapus data online'); return; }
-                            await fetchData();
-                        } else {
-                            mutasiDataList = mutasiDataList.filter(x => x.id !== id);
-                            renderTable();
-                        }
+                    const isConfirmed = await confirmGagah();
+                    if (isConfirmed) {
+                        const row = btn.closest('tr');
+                        if (row) row.classList.add('row-deleting');
+                        
+                        setTimeout(async () => {
+                            if (useDB) {
+                                const del = await supa.from('mutasi_pm').delete().eq('id', id);
+                                if (del.error) { 
+                                    alert('Gagal menghapus data online'); 
+                                    if (row) row.classList.remove('row-deleting');
+                                    return; 
+                                }
+                                await fetchData();
+                            } else {
+                                mutasiDataList = mutasiDataList.filter(x => x.id !== id);
+                                renderTable();
+                            }
+                            showToastGagah('Data berhasil dihapus selamanya');
+                        }, 500); // Tunggu animasi selesai
                     }
                 } else if (action === 'edit') {
                     const item = mutasiDataList.find(x => x.id === id);
@@ -802,4 +813,74 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Tampilkan Dashboard secara otomatis saat load awal
     showPage('dashboard');
+    
+    // Siapkan element modal kustom "Gagah"
+    createCoolElements();
 });
+
+// Fungsi untuk membuat elemen UI pendukung (modal & toast)
+function createCoolElements() {
+    if (document.getElementById('cool-modal-overlay')) return;
+
+    // Modal HTML
+    const modalHTML = `
+        <div id="cool-modal-overlay" class="custom-modal-overlay">
+            <div class="custom-modal">
+                <div class="w-20 h-20 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+                    <i data-lucide="alert-triangle" class="w-10 h-10"></i>
+                </div>
+                <h3 class="text-xl font-black text-slate-800 mb-2 uppercase tracking-tight">Konfirmasi Hapus</h3>
+                <p class="text-slate-500 text-sm mb-8 leading-relaxed">Apakah Anda yakin ingin menghapus data ini secara permanen? Tindakan ini tidak dapat dibatalkan.</p>
+                <div class="flex gap-3">
+                    <button id="cool-modal-cancel" class="flex-1 px-6 py-3.5 bg-slate-100 text-slate-600 font-black text-[10px] uppercase tracking-widest rounded-2xl hover:bg-slate-200 transition-all">Batal</button>
+                    <button id="cool-modal-confirm" class="flex-1 px-6 py-3.5 bg-rose-600 text-white font-black text-[10px] uppercase tracking-widest rounded-2xl hover:bg-rose-700 shadow-lg shadow-rose-200 hover:-translate-y-0.5 transition-all">Hapus Sekarang</button>
+                </div>
+            </div>
+        </div>
+        <div id="cool-toast" class="toast-gagah">
+            <i data-lucide="check-circle" class="w-5 h-5 text-emerald-400"></i>
+            <span id="cool-toast-msg">Data berhasil dihapus</span>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    initIcons();
+}
+
+// Fungsi Konfirmasi Gagah
+function confirmGagah() {
+    return new Promise((resolve) => {
+        const overlay = document.getElementById('cool-modal-overlay');
+        const btnConfirm = document.getElementById('cool-modal-confirm');
+        const btnCancel = document.getElementById('cool-modal-cancel');
+
+        const close = (result) => {
+            overlay.classList.remove('active');
+            resolve(result);
+        };
+
+        btnConfirm.onclick = () => close(true);
+        btnCancel.onclick = () => close(false);
+        overlay.onclick = (e) => { if (e.target === overlay) close(false); };
+
+        overlay.classList.add('active');
+    });
+}
+
+// Fungsi Toast Gagah
+function showToastGagah(msg = 'Data berhasil dihapus', icon = 'check-circle', color = 'text-emerald-400') {
+    const toast = document.getElementById('cool-toast');
+    const msgEl = document.getElementById('cool-toast-msg');
+    const iconEl = toast.querySelector('i');
+
+    msgEl.innerText = msg;
+    if (iconEl) {
+        iconEl.setAttribute('data-lucide', icon);
+        iconEl.className = `w-5 h-5 ${color}`;
+        initIcons();
+    }
+
+    toast.classList.add('active');
+    setTimeout(() => {
+        toast.classList.remove('active');
+    }, 3000);
+}
