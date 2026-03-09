@@ -62,6 +62,15 @@ function showPage(pageId) {
     const displayTitle = pageId.replace(/-/g, ' ').toUpperCase();
     document.getElementById('page-title-display').innerText = displayTitle === 'DASHBOARD' ? 'Dashboard' : displayTitle;
 
+    const runningTextContainer = document.getElementById('running-text-container');
+    if (runningTextContainer) {
+        if (pageId === 'dashboard') {
+            runningTextContainer.classList.remove('hidden');
+        } else {
+            runningTextContainer.classList.add('hidden');
+        }
+    }
+
     // Konten dinamis untuk setiap halaman
     const pageContents = {
         'dashboard': `
@@ -785,7 +794,19 @@ window.addEventListener('resize', () => {
 document.addEventListener('DOMContentLoaded', () => {
     initSupabaseClient();
     initIcons();
-    document.getElementById('current-date').innerText = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    const timeEl = document.getElementById('current-time');
+    const dateEl = document.getElementById('current-date');
+    const dayEl = document.getElementById('current-day');
+
+    function updateTime() {
+        const now = new Date();
+        if (timeEl) timeEl.textContent = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        if (dateEl) dateEl.textContent = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+        if (dayEl) dayEl.textContent = now.toLocaleDateString('id-ID', { weekday: 'long' });
+    }
+
+    updateTime();
+    setInterval(updateTime, 1000);
     
     if (window.innerWidth < 1024) {
         isSidebarOpen = false;
