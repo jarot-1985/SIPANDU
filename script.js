@@ -575,19 +575,19 @@ let currentUserRole = null; // Menyimpan peran pengguna yang sedang login
 const userRoles = {
     'PPS2026': { // Approver
         role: 'Approver',
-        allowedMenus: ['dashboard', 'sub-tu', 'sub-pm', 'sub-belanja', 'sub-laporan', 'sub-approver', 'sub-operasional', 'sub-admin'], // Semua Menu
+        allowedMenus: ['dashboard', 'sub-tu', 'sub-pm', 'sub-belanja', 'sub-laporan', 'sub-approver', 'sub-operasional'], // Semua Menu
         excludedSubMenus: {}, // Tidak ada pengecualian
         lockedMenus: []
     },
     'TU2026': { // Administrator-TU
         role: 'Administrator-TU',
-        allowedMenus: ['dashboard', 'sub-tu', 'sub-pm', 'sub-belanja', 'sub-laporan', 'sub-approver', 'sub-operasional', 'sub-admin'],
+        allowedMenus: ['dashboard', 'sub-tu', 'sub-pm', 'sub-belanja', 'sub-laporan', 'sub-approver', 'sub-operasional'],
         excludedSubMenus: {},
         lockedMenus: ['sub-approver']
     },
     'TEST2026': { // Administrator
         role: 'Administrator',
-        allowedMenus: ['dashboard', 'sub-tu', 'sub-pm', 'sub-belanja', 'sub-laporan', 'sub-approver', 'sub-operasional', 'sub-admin'],
+        allowedMenus: ['dashboard', 'sub-tu', 'sub-pm', 'sub-belanja', 'sub-laporan', 'sub-approver', 'sub-operasional'],
         excludedSubMenus: {},
         lockedMenus: ['sub-approver', 'sub-operasional']
     },
@@ -635,7 +635,6 @@ function applyMenuPermissions(role) {
     document.getElementById('btn-sub-laporan').classList.add('hidden');
     document.getElementById('btn-sub-approver').classList.add('hidden');
     document.getElementById('btn-sub-operasional').classList.add('hidden');
-    document.getElementById('btn-sub-admin').classList.add('hidden');
     document.querySelectorAll('.submenu-container').forEach(sub => {
         sub.classList.add('hidden');
     });
