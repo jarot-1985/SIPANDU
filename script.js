@@ -97,12 +97,12 @@ function showPage(pageId) {
                                 Sistem Informasi Penyimpanan Data Terpadu
                             </p>
                             <p class="text-xl font-medium text-sky-100/90 italic">
-                                (Portal Internal PPS Raharjo Sragen)
+                                (Portal Internal PPS Raharjo - RPS Mojomulyo - RPS Pamardi Siwi - RPS Gondang)
                             </p>
                         </div>
                     </div>
                     <div class="flex space-x-3">
-                        <div class="px-4 py-2 bg-white/20 backdrop-blur-md border border-white/20 rounded-lg text-[10px] font-bold uppercase tracking-widest">Status: Aktif</div>
+                        <div class="px-4 py-2 bg-white/20 backdrop-blur-md border border-white/20 rounded-lg text-[10px] font-bold uppercase tracking-widest">Role: ${currentUserRole || 'Guest'}</div>
                     </div>
                 </div>
             </div>
@@ -412,21 +412,413 @@ function showPage(pageId) {
                 <h3 class="text-xl font-black mb-4">Laporan BMD</h3>
                 <p class="text-slate-600">Halaman laporan BMD akan segera tersedia.</p>
             </div>
-        `
+        `,
+        'approval-belanja': `
+            <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
+                <div class="flex items-center gap-3 mb-6">
+                    <i data-lucide="shield-check" class="w-6 h-6 text-sky-500"></i>
+                    <h3 class="text-xl font-black text-slate-800">Persetujuan Belanja</h3>
+                </div>
+                <div class="p-12 text-center space-y-4">
+                    <div class="w-20 h-20 bg-sky-50 rounded-full flex items-center justify-center mx-auto">
+                        <i data-lucide="clock" class="w-10 h-10 text-sky-400"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-slate-700">Belum Ada Data Antrean</h4>
+                    <p class="text-sm text-slate-500 max-w-sm mx-auto">Seluruh pengajuan belanja telah diproses. Data baru akan muncul di sini jika ada pengajuan dari unit kerja.</p>
+                </div>
+            </div>
+        `,
+        'approval-laporan': `
+            <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
+                <div class="flex items-center gap-3 mb-6">
+                    <i data-lucide="file-check" class="w-6 h-6 text-indigo-500"></i>
+                    <h3 class="text-xl font-black text-slate-800">Persetujuan Laporan</h3>
+                </div>
+                <div class="p-12 text-center space-y-4">
+                    <div class="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mx-auto">
+                        <i data-lucide="file-text" class="w-10 h-10 text-indigo-400"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-slate-700">Antrean Laporan Kosong</h4>
+                    <p class="text-sm text-slate-500 max-w-sm mx-auto">Belum ada laporan unit kerja yang memerlukan persetujuan saat ini.</p>
+                </div>
+            </div>
+        `,
+        'statistik-pengunjung': `
+            <div class="space-y-6">
+                <!-- Summary Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-2">
+                        <div class="w-12 h-12 bg-sky-50 rounded-2xl flex items-center justify-center text-sky-500">
+                            <i data-lucide="users" class="w-6 h-6"></i>
+                        </div>
+                        <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Total Kunjungan</p>
+                        <h4 id="stat-total-visits" class="text-3xl font-black text-slate-800">0</h4>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-2">
+                        <div class="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-500">
+                            <i data-lucide="shield-check" class="w-6 h-6"></i>
+                        </div>
+                        <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Admin Login</p>
+                        <h4 id="stat-admin-visits" class="text-3xl font-black text-slate-800">0</h4>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-2">
+                        <div class="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-500">
+                            <i data-lucide="user" class="w-6 h-6"></i>
+                        </div>
+                        <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">User Login</p>
+                        <h4 id="stat-user-visits" class="text-3xl font-black text-slate-800">0</h4>
+                    </div>
+                </div>
+
+                <!-- Recent Activity Table -->
+                <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+                        <h3 class="text-lg font-black text-slate-800">Aktivitas Login Terakhir</h3>
+                        <button onclick="clearVisitorStats()" class="text-[10px] font-bold text-rose-500 hover:text-rose-600 uppercase tracking-widest">Hapus Data</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50/50">
+                                    <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">No</th>
+                                    <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Role / Pengguna</th>
+                                    <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Waktu Akses</th>
+                                    <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent-logins-table-body">
+                                <!-- Data will be injected here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        `,
     };
 
     const content = pageContents[pageId] || '<div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm"><h3 class="text-xl font-black mb-4">Halaman Tidak Ditemukan</h3><p class="text-slate-600">Konten untuk halaman ini belum tersedia.</p></div>';
     document.getElementById('page-content').innerHTML = content;
 
     if (window.innerWidth < 1024) toggleSidebar();
-    initIcons();
     if (pageId === 'mutasi-pm') initMutasiForm();
+    if (pageId === 'statistik-pengunjung') renderVisitorStats();
+    initIcons();
+}
+
+function renderVisitorStats() {
+    let stats;
+    try {
+        stats = JSON.parse(localStorage.getItem('visitor_stats')) || {
+            totalVisits: 0,
+            roleVisits: {},
+            recentLogins: []
+        };
+    } catch (e) {
+        stats = {
+            totalVisits: 0,
+            roleVisits: {},
+            recentLogins: []
+        };
+    }
+
+    // Update Summary
+    const totalEl = document.getElementById('stat-total-visits');
+    const adminEl = document.getElementById('stat-admin-visits');
+    const userEl = document.getElementById('stat-user-visits');
+
+    if (totalEl) totalEl.innerText = stats.totalVisits;
+    
+    if (adminEl) {
+        const adminCount = (stats.roleVisits['Administrator'] || 0) + (stats.roleVisits['Administrator-TU'] || 0) + (stats.roleVisits['Approver'] || 0);
+        adminEl.innerText = adminCount;
+    }
+    
+    if (userEl) userEl.innerText = stats.roleVisits['User'] || 0;
+
+    // Update Table
+    const tableBody = document.getElementById('recent-logins-table-body');
+    if (tableBody) {
+        if (stats.recentLogins.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="4" class="px-6 py-12 text-center text-slate-400 font-medium">Belum ada data aktivitas.</td></tr>`;
+        } else {
+            tableBody.innerHTML = stats.recentLogins.map((login, index) => `
+                <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
+                    <td class="px-6 py-4 text-sm font-bold text-slate-400">${index + 1}</td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-sky-50 flex items-center justify-center text-sky-500 font-bold text-xs">
+                                ${login.role.charAt(0)}
+                            </div>
+                            <span class="text-sm font-bold text-slate-700">${login.role}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-slate-500 font-medium">${login.time}</td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase rounded-lg">Success</span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+    }
+}
+
+function clearVisitorStats() {
+    if (confirm('Apakah Anda yakin ingin menghapus semua data statistik?')) {
+        localStorage.removeItem('visitor_stats');
+        renderVisitorStats();
+        showToastGagah('Data statistik telah dihapus.', 'trash-2', 'text-rose-500');
+    }
+}
+
+let currentUserRole = null; // Menyimpan peran pengguna yang sedang login
+
+const userRoles = {
+    'PPS2026': { // Approver
+        role: 'Approver',
+        allowedMenus: ['dashboard', 'sub-tu', 'sub-pm', 'sub-belanja', 'sub-laporan', 'sub-approver', 'sub-operasional', 'sub-admin'], // Semua Menu
+        excludedSubMenus: {}, // Tidak ada pengecualian
+        lockedMenus: []
+    },
+    'TU2026': { // Administrator-TU
+        role: 'Administrator-TU',
+        allowedMenus: ['dashboard', 'sub-tu', 'sub-pm', 'sub-belanja', 'sub-laporan', 'sub-approver', 'sub-operasional', 'sub-admin'],
+        excludedSubMenus: {},
+        lockedMenus: ['sub-approver']
+    },
+    'TEST2026': { // Administrator
+        role: 'Administrator',
+        allowedMenus: ['dashboard', 'sub-tu', 'sub-pm', 'sub-belanja', 'sub-laporan', 'sub-approver', 'sub-operasional', 'sub-admin'],
+        excludedSubMenus: {},
+        lockedMenus: ['sub-approver', 'sub-operasional']
+    },
+    'sragenasri': { // User
+        role: 'User',
+        allowedMenus: ['dashboard', 'sub-tu', 'sub-pm', 'sub-laporan', 'sub-belanja', 'sub-operasional', 'sub-approver'],
+        excludedSubMenus: {},
+        lockedMenus: ['sub-belanja', 'sub-operasional', 'sub-approver']
+    },
+    '8888': { // Checker
+        role: 'Checker',
+        allowedMenus: ['dashboard', 'sub-tu', 'sub-pm', 'sub-belanja', 'sub-laporan', 'sub-approver', 'sub-operasional'], // Semua Menu
+        excludedSubMenus: {}, // Tidak ada pengecualian
+        lockedMenus: ['sub-approver']
+    }
+};
+
+function applyMenuPermissions(role) {
+    const roleConfig = userRoles[role];
+    if (!roleConfig) return;
+
+    // Reset semua link submenu ke keadaan aktif dan sembunyikan semua ikon kunci
+    document.querySelectorAll('.submenu-container a').forEach(link => {
+        link.classList.remove('text-slate-500', 'cursor-not-allowed', 'disabled-link');
+    });
+    document.querySelectorAll('.lock-icon').forEach(icon => {
+        icon.classList.add('hidden');
+    });
+
+    // Reset semua button menu utama (hapus lock icon lama jika ada)
+    document.querySelectorAll('nav button[id^="btn-sub-"]').forEach(btn => {
+        btn.classList.remove('cursor-not-allowed', 'opacity-80');
+        btn.style.pointerEvents = 'auto';
+        const lockIcon = btn.querySelector('.main-lock-icon');
+        if (lockIcon) lockIcon.remove();
+        const chevron = btn.querySelector('.chevron-icon');
+        if (chevron) chevron.classList.remove('hidden');
+    });
+
+    // Sembunyikan semua menu dan submenu terlebih dahulu
+    document.getElementById('menu-dashboard').classList.add('hidden');
+    document.getElementById('btn-sub-tu').classList.add('hidden');
+    document.getElementById('btn-sub-pm').classList.add('hidden');
+    document.getElementById('btn-sub-belanja').classList.add('hidden');
+    document.getElementById('btn-sub-laporan').classList.add('hidden');
+    document.getElementById('btn-sub-approver').classList.add('hidden');
+    document.getElementById('btn-sub-operasional').classList.add('hidden');
+    document.getElementById('btn-sub-admin').classList.add('hidden');
+    document.querySelectorAll('.submenu-container').forEach(sub => {
+        sub.classList.add('hidden');
+    });
+
+    // Tampilkan menu yang diizinkan
+    roleConfig.allowedMenus.forEach(menuId => {
+        if (menuId === 'dashboard') {
+            document.getElementById('menu-dashboard').classList.remove('hidden');
+        } else {
+            const menuButton = document.getElementById(`btn-${menuId}`);
+            if (menuButton) {
+                menuButton.classList.remove('hidden');
+                const submenu = document.getElementById(menuId);
+                if (submenu) submenu.classList.remove('hidden');
+            }
+        }
+    });
+
+    // Kunci menu utama yang ditentukan
+    if (roleConfig.lockedMenus) {
+        roleConfig.lockedMenus.forEach(menuId => {
+            const btn = document.getElementById(`btn-${menuId}`);
+            if (btn) {
+                btn.classList.add('cursor-not-allowed', 'opacity-80');
+                btn.style.pointerEvents = 'none'; // Nonaktifkan klik
+                
+                // Tambahkan ikon gembok jika belum ada
+                const chevron = btn.querySelector('.chevron-icon');
+                if (chevron) {
+                    chevron.classList.add('hidden');
+                    const lockIcon = document.createElement('i');
+                    lockIcon.setAttribute('data-lucide', 'lock');
+                    lockIcon.className = 'w-4 h-4 text-sky-200 main-lock-icon';
+                    btn.appendChild(lockIcon);
+                }
+            }
+        });
+        // Refresh icons for new lock icons
+        if (window.lucide) window.lucide.createIcons();
+    }
+
+    // Sembunyikan submenu yang dikecualikan dan beri tanda kunci (untuk link spesifik)
+    if (roleConfig.excludedSubMenus) {
+        for (const parentMenuId in roleConfig.excludedSubMenus) {
+            const excludedItems = roleConfig.excludedSubMenus[parentMenuId];
+            excludedItems.forEach(itemId => {
+                const submenuContainer = document.getElementById(parentMenuId);
+                if (submenuContainer) {
+                    const items = submenuContainer.querySelectorAll('a, div.flex');
+                    items.forEach(item => {
+                        const link = item.querySelector('a');
+                        if (link && link.textContent.toLowerCase().includes(itemId.replace(/-/g, ' '))) {
+                            link.classList.add('text-slate-500', 'cursor-not-allowed', 'disabled-link');
+                            const lockIcon = item.querySelector('.lock-icon');
+                            if (lockIcon) {
+                                lockIcon.classList.remove('hidden');
+                            }
+                        }
+                    });
+                }
+            });
+        }
+    }
+}
+
+
+// Visitor Statistics Logic
+function trackVisitor(role) {
+    let stats;
+    try {
+        stats = JSON.parse(localStorage.getItem('visitor_stats')) || {
+            totalVisits: 0,
+            roleVisits: {},
+            recentLogins: []
+        };
+    } catch (e) {
+        stats = {
+            totalVisits: 0,
+            roleVisits: {},
+            recentLogins: []
+        };
+    }
+
+    stats.totalVisits++;
+    stats.roleVisits[role] = (stats.roleVisits[role] || 0) + 1;
+    
+    const now = new Date();
+    const loginTime = now.toLocaleString('id-ID', { 
+        day: '2-digit', month: 'short', year: 'numeric', 
+        hour: '2-digit', minute: '2-digit' 
+    });
+    
+    stats.recentLogins.unshift({
+        role: role,
+        time: loginTime
+    });
+
+    // Keep only last 10 logins
+    if (stats.recentLogins.length > 10) stats.recentLogins.pop();
+
+    localStorage.setItem('visitor_stats', JSON.stringify(stats));
+}
+
+function handleLogin() {
+    const pinInput = document.getElementById('pin-input');
+    const loginError = document.getElementById('login-error');
+    const loginPage = document.getElementById('login-page');
+    const mainAppContent = document.getElementById('main-app-content');
+
+    const pin = pinInput.value;
+    const roleConfig = userRoles[pin];
+
+    if (roleConfig) {
+        currentUserRole = roleConfig.role;
+        trackVisitor(currentUserRole); // Track visit on successful login
+        loginError.classList.add('hidden');
+        loginPage.classList.add('hidden');
+        mainAppContent.classList.remove('hidden');
+        showToastGagah(`Selamat datang, ${currentUserRole}!`, 'user-check', 'text-emerald-400');
+        
+        applyMenuPermissions(pin); // Terapkan izin menu berdasarkan PIN
+        showPage('dashboard'); // Tampilkan dashboard setelah login
+    } else {
+        loginError.innerText = 'PIN salah. Silakan coba lagi.';
+        loginError.classList.remove('hidden');
+        pinInput.value = ''; // Bersihkan input PIN
+        showToastGagah('PIN salah!', 'alert-triangle', 'text-rose-500');
+    }
+}
+
+function handleLogout() {
+    const modal = document.getElementById('logout-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        if (window.lucide) window.lucide.createIcons();
+    }
+}
+
+function closeLogoutModal() {
+    const modal = document.getElementById('logout-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+}
+
+function confirmLogout() {
+    closeLogoutModal();
+    const loginPage = document.getElementById('login-page');
+    const mainAppContent = document.getElementById('main-app-content');
+    const pinInput = document.getElementById('pin-input');
+
+    mainAppContent.classList.add('hidden');
+    loginPage.classList.remove('hidden');
+    pinInput.value = ''; // Bersihkan input PIN
+    currentUserRole = null; // Reset peran pengguna
+    showToastGagah('Anda telah logout.', 'log-out', 'text-slate-400');
 }
 
 // Panggil showPage saat halaman dimuat pertama kali
 document.addEventListener('DOMContentLoaded', () => {
     initIcons();
-    showPage('dashboard'); // Tampilkan dashboard secara default
+    // Tambahkan event listener untuk tombol login
+    const loginButton = document.getElementById('login-button');
+    if (loginButton) {
+        loginButton.addEventListener('click', handleLogin);
+    }
+
+    // Tambahkan event listener untuk input PIN (tekan Enter)
+    const pinInput = document.getElementById('pin-input');
+    if (pinInput) {
+        pinInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                handleLogin();
+            }
+        });
+    }
+
+    // Tambahkan event listener untuk tombol logout
+    const logoutButton = document.getElementById('logout-button');
+    if (logoutButton) {
+        logoutButton.addEventListener('click', handleLogout);
+    }
+    // showPage('dashboard'); // Tampilkan dashboard secara default (sekarang dikontrol oleh login)
 });
 
 function initMutasiForm() {
@@ -837,6 +1229,15 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Siapkan element modal kustom "Gagah"
     createCoolElements();
+
+    // Event listener untuk link yang dinonaktifkan
+    document.addEventListener('click', (e) => {
+        const targetLink = e.target.closest('a.disabled-link');
+        if (targetLink) {
+            e.preventDefault();
+            showToastGagah('Anda tidak memiliki akses ke menu ini.', 'lock', 'text-rose-500');
+        }
+    });
 });
 
 // Fungsi untuk membuat elemen UI pendukung (modal & toast)
@@ -885,6 +1286,24 @@ function confirmGagah() {
 
         overlay.classList.add('active');
     });
+}
+
+// Fungsi untuk menangani klik pada Profile Admin
+function handleAdminClick() {
+    const password = prompt("Masukkan Password Admin:");
+    if (password === "888") {
+        const adminLinks = document.getElementById('admin-links');
+        if (adminLinks) {
+            adminLinks.classList.toggle('hidden');
+            if (!adminLinks.classList.contains('hidden')) {
+                showToastGagah("Akses Diterima - Menu Admin Terbuka", "unlock", "text-sky-400");
+            } else {
+                showToastGagah("Menu Admin Ditutup", "lock", "text-slate-400");
+            }
+        }
+    } else if (password !== null) {
+        showToastGagah("Password Salah!", "alert-circle", "text-rose-500");
+    }
 }
 
 // Fungsi Toast Gagah
