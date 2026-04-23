@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Manajemen Internal - Cloud Sync</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .tab-active { border-bottom: 2px solid #2563eb; color: #2563eb; }
+        
+        .status-done { background-color: #dcfce7; color: #166534; border: 1px solid #166534; }
+        .status-pending { background-color: #fee2e2; color: #991b1b; border: 1px solid #991b1b; cursor: pointer; transition: all 0.2s; }
+        .status-pending:hover { background-color: #fecaca; transform: scale(1.02); }
+        
+        .cell-wrap { 
+            white-space: normal !important; 
+            word-break: break-word; 
+            overflow-wrap: break-word;
+            min-width: 120px;
+        }
+        
+        .no-wrap { white-space: nowrap; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        
+        table { width: 100%; border-spacing: 0; table-layout: auto; }
+        th { background-color: #f8fafc; }
+        td { vertical-align: top; }
+
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.95);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Layar Pemuatan -->
+    <div id="loader" class="loading-overlay">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+        <p id="loaderText" class="text-gray-800 font-bold text-lg mb-1">Menghubungkan ke Cloud...</p>
+        <p id="loaderSubText" class="text-gray-500 text-sm">Mohon tunggu sebentar</p>
+    </div>
+
+    <!-- Kontainer Utama: Lebar dikurangi menjadi 60% pada desktop (lg:max-w-[60%]) -->
+    <div id="app" class="max-w-full lg:max-w-[60%] mx-auto p-4 md:p-8">
+        <!-- Header -->
+        <header class="mb-8 flex flex-col lg:flex-row justify-between items-center gap-6">
+            <div class="text-center md:text-left">
+                <h1 class="text-3xl font-bold text-gray-800 uppercase tracking-tight">Managemen Data Personal</h1>
+                <p class="text-gray-500 text-sm mt-1 uppercase tracking-widest font-medium opacity-70">RUANG PERSONAL</p>
+            </div>
+
+            <!-- Bilah Alat -->
+            <div class="flex flex-col md:flex-row items-center gap-4 bg-white p-3 rounded-xl shadow-sm border border-gray-100">
+                <div class="flex items-center gap-2">
+                    <div class="flex flex-col">
+                        <label class="text-[9px] font-bold text-gray-400 uppercase ml-1">Dari Tanggal</label>
+                        <input type="date" id="filterStart" onchange="applyFilters()" class="text-xs p-1.5 border rounded outline-none focus:ring-1 focus:ring-blue-500">
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="text-[9px] font-bold text-gray-400 uppercase ml-1">Sampai Tanggal</label>
+                        <input type="date" id="filterEnd" onchange="applyFilters()" class="text-xs p-1.5 border rounded outline-none focus:ring-1 focus:ring-blue-500">
+                    </div>
+                    <button onclick="resetFilters()" class="mt-4 p-1.5 text-gray-400 hover:text-red-500 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                </div>
+                
+                <div class="h-8 w-[1px] bg-gray-100 hidden md:block"></div>
+
+                <div class="flex gap-2 flex-wrap justify-center">
+                    <button onclick="exportToExcel()" class="bg-emerald-600 text-white px-3 py-1.5 rounded-lg hover:bg-emerald-700 transition text-xs font-bold shadow-sm">Excel</button>
+                    <button onclick="backupData()" class="bg-white border border-blue-200 text-blue-700 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition text-xs font-bold shadow-sm">💾 CADANGAN</button>
+                    <label class="bg-white border border-amber-200 text-amber-700 px-3 py-1.5 rounded-lg hover:bg-amber-50 transition text-xs font-bold shadow-sm cursor-pointer">
+                        🔄 PULIHKAN
+                        <input type="file" id="restoreFile" class="hidden" accept=".json" onchange="restoreData(event)">
+                    </label>
+                </div>
+            </div>
+        </header>
+
+        <!-- Tab Navigasi -->
+        <div class="flex border-b border-gray-200 mb-6 overflow-x-auto hide-scrollbar bg-white rounded-t-lg shadow-sm">
+            <button onclick="switchTab('daily')" id="tab-daily" class="px-6 py-4 font-medium text-gray-500 hover:text-blue-600 transition-all tab-active whitespace-nowrap">Tugas Harian</button>
+            <button onclick="switchTab('tasks')" id="tab-tasks" class="px-6 py-4 font-medium text-gray-500 hover:text-blue-600 transition-all whitespace-nowrap">Manajemen Tugas</button>
+            <button onclick="switchTab('passwords')" id="tab-passwords" class="px-6 py-4 font-medium text-gray-500 hover:text-blue-600 transition-all whitespace-nowrap">Penyimpanan Password</button>
+        </div>
+
+        <!-- Bagian Harian -->
+        <section id="section-daily" class="block">
+            <div class="flex justify-between items-center mb-4 flex-wrap gap-4">
+                <h2 class="text-xl font-semibold text-gray-700">Agenda Kegiatan Harian</h2>
+                <button onclick="openModal('dailyModal')" class="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 shadow-md font-medium">+ Tambah Kegiatan</button>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
+                <div class="overflow-x-auto">
+                    <table class="text-left border-collapse text-sm">
+                        <thead class="text-gray-600 uppercase text-xs font-bold tracking-wider">
+                            <tr>
+                                <th class="p-4 border-b no-wrap" style="width: 120px;">Tanggal</th>
+                                <th class="p-4 border-b no-wrap" style="width: 80px;">Jam</th>
+                                <th class="p-4 border-b">Kegiatan</th>
+                                <th class="p-4 border-b">Keterangan</th>
+                                <th class="p-4 border-b text-center no-wrap">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dailyTableBody" class="text-gray-700 divide-y divide-gray-100"></tbody>
+                    </table>
+                </div>
+                <div id="emptyDaily" class="p-12 text-center text-gray-400 hidden italic">Belum ada agenda.</div>
+            </div>
+        </section>
+
+        <!-- Bagian Tugas -->
+        <section id="section-tasks" class="hidden">
+            <div class="flex justify-between items-center mb-4 flex-wrap gap-4">
+                <h2 class="text-xl font-semibold text-gray-700">Daftar Administrasi Bidang</h2>
+                <button onclick="openModal('taskModal')" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 shadow-md font-medium">+ Tambah Tugas</button>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
+                <div class="overflow-x-auto">
+                    <table class="text-left border-collapse text-sm">
+                        <thead class="text-gray-600 uppercase text-xs font-bold tracking-wider">
+                            <tr>
+                                <th class="p-4 border-b no-wrap">Bidang</th>
+                                <th class="p-4 border-b">Nama Tugas</th>
+                                <th class="p-4 border-b no-wrap">Tanggal</th>
+                                <th class="p-4 border-b no-wrap">Link/File</th>
+                                <th class="p-4 border-b no-wrap">Status</th>
+                                <th class="p-4 border-b no-wrap">Tgl Laporan</th>
+                                <th class="p-4 border-b">Keterangan</th>
+                                <th class="p-4 border-b text-center no-wrap">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="taskTableBody" class="text-gray-700 divide-y divide-gray-100"></tbody>
+                    </table>
+                </div>
+                <div id="emptyTask" class="p-12 text-center text-gray-400 hidden italic">Belum ada tugas.</div>
+            </div>
+        </section>
+
+        <!-- Bagian Password -->
+        <section id="section-passwords" class="hidden">
+            <div class="flex justify-between items-center mb-4 flex-wrap gap-4">
+                <h2 class="text-xl font-semibold text-gray-700">Brankas Kata Sandi</h2>
+                <button onclick="openModal('passModal')" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 shadow-md font-medium">+ Tambah Kredensial</button>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
+                <div class="overflow-x-auto">
+                    <table class="text-left border-collapse text-sm">
+                        <thead class="text-gray-600 uppercase text-xs font-bold tracking-wider">
+                            <tr>
+                                <th class="p-4 border-b no-wrap">Bidang</th>
+                                <th class="p-4 border-b no-wrap">Jenis</th>
+                                <th class="p-4 border-b">Aplikasi/Email</th>
+                                <th class="p-4 border-b">User</th>
+                                <th class="p-4 border-b">Keamanan</th>
+                                <th class="p-4 border-b">Info Tambahan</th>
+                                <th class="p-4 border-b text-center no-wrap">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="passTableBody" class="text-gray-700 divide-y divide-gray-100"></tbody>
+                    </table>
+                </div>
+                <div id="emptyPass" class="p-12 text-center text-gray-400 hidden italic">Brankas kosong.</div>
+            </div>
+        </section>
+
+        <!-- Modal PIN -->
+        <div id="pinModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-[100]">
+            <div class="bg-white rounded-xl w-full max-w-sm p-6 shadow-2xl text-center">
+                <div class="mb-4">
+                    <h3 class="text-lg font-bold text-gray-800">Konfirmasi PIN</h3>
+                    <p class="text-sm text-gray-500">Masukkan PIN untuk aksi ini.</p>
+                </div>
+                <input type="password" id="deletePinInput" maxlength="3" class="w-24 text-center text-2xl tracking-widest p-2 border-2 rounded-lg outline-none focus:border-red-500 mb-6">
+                <div class="flex justify-center gap-3">
+                    <button onclick="closePinModal()" class="px-4 py-2 text-gray-500 hover:bg-gray-100 rounded-lg">Batal</button>
+                    <button onclick="confirmDeleteWithPin()" class="px-6 py-2 bg-red-600 text-white rounded-lg">Konfirmasi</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Modal (Harian) -->
+        <div id="dailyModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-xl w-full max-w-lg p-6 shadow-2xl">
+                <div class="flex justify-between items-center mb-4 border-b pb-2">
+                    <h3 class="text-lg font-bold text-emerald-700">Form Kegiatan</h3>
+                    <button onclick="closeModal('dailyModal')" class="text-gray-400 text-2xl">&times;</button>
+                </div>
+                <form id="dailyForm" class="space-y-4">
+                    <input type="hidden" name="id">
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="date" name="tanggal" class="p-2 border rounded" required>
+                        <input type="time" name="jam" class="p-2 border rounded" required>
+                    </div>
+                    <input type="text" name="kegiatan" placeholder="Kegiatan" class="w-full p-2 border rounded" required>
+                    <textarea name="keterangan" rows="3" placeholder="Keterangan" class="w-full p-2 border rounded"></textarea>
+                    <div class="flex justify-end gap-2 border-t pt-4">
+                        <button type="button" onclick="closeModal('dailyModal')" class="px-4 py-2 text-gray-500">Batal</button>
+                        <button type="submit" class="px-6 py-2 bg-emerald-600 text-white rounded">Simpan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Form Modal (Tugas) -->
+        <div id="taskModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-xl w-full max-w-2xl p-6 shadow-2xl">
+                <div class="flex justify-between items-center mb-4 border-b pb-2">
+                    <h3 class="text-lg font-bold text-blue-700 uppercase">Form Tugas</h3>
+                    <button onclick="closeModal('taskModal')" class="text-gray-400 text-2xl">&times;</button>
+                </div>
+                <form id="taskForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="hidden" name="id">
+                    <div class="col-span-2">
+                        <label class="block text-[10px] font-bold text-gray-500 uppercase">Nama Tugas</label>
+                        <input type="text" name="namaTugas" class="w-full p-2 border rounded" required>
+                    </div>
+                    <div><label class="block text-[10px] font-bold text-gray-500 uppercase">Bidang</label>
+                        <select name="bidang" class="w-full p-2 border rounded" required>
+                            <option value="Perencanaan">Perencanaan</option>
+                            <option value="Keuangan">Keuangan</option>
+                            <option value="PBJ">PBJ</option>
+                            <option value="Lainnya">Lainnya</option>
+                        </select>
+                    </div>
+                    <div><label class="block text-[10px] font-bold text-gray-500 uppercase">Tanggal</label>
+                        <input type="date" name="tanggal" class="w-full p-2 border rounded" required>
+                    </div>
+                    <input type="text" name="pdfUrl" placeholder="Link PDF" class="p-2 border rounded">
+                    <input type="url" name="link" placeholder="Link Lainnya" class="p-2 border rounded">
+                    <select name="status" class="p-2 border rounded font-bold">
+                        <option value="Belum Selesai">Belum Selesai</option>
+                        <option value="Selesai">Selesai</option>
+                    </select>
+                    <input type="date" name="tglLaporan" class="p-2 border rounded">
+                    <div class="col-span-2">
+                        <textarea name="keterangan" rows="2" placeholder="Keterangan" class="w-full p-2 border rounded"></textarea>
+                    </div>
+                    <div class="col-span-2 flex justify-end gap-2 border-t pt-4">
+                        <button type="button" onclick="closeModal('taskModal')" class="px-4 py-2 text-gray-500">Batal</button>
+                        <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded">Simpan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Form Modal (Kredensial) -->
+        <div id="passModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-xl w-full max-w-2xl p-6 shadow-2xl">
+                <div class="flex justify-between items-center mb-4 border-b pb-2">
+                    <h3 class="text-lg font-bold text-indigo-700 uppercase">Form Kredensial</h3>
+                    <button onclick="closeModal('passModal')" class="text-gray-400 text-2xl">&times;</button>
+                </div>
+                <form id="passForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="hidden" name="id">
+                    <select name="bidang" class="p-2 border rounded" required>
+                        <option value="Perencanaan">Perencanaan</option>
+                        <option value="Keuangan">Keuangan</option>
+                        <option value="PBJ">PBJ</option>
+                        <option value="Lainnya">Lainnya</option>
+                    </select>
+                    <select name="jenis" class="p-2 border rounded" required>
+                        <option value="Personal">Personal</option>
+                        <option value="Unit Kerja">Unit Kerja</option>
+                    </select>
+                    <input type="text" name="nama" placeholder="Aplikasi" class="p-2 border rounded" required>
+                    <input type="url" name="url" placeholder="URL Login" class="p-2 border rounded">
+                    <input type="text" name="user" placeholder="User" class="p-2 border rounded" required>
+                    <input type="text" name="password" placeholder="Password" class="p-2 border rounded font-mono" required>
+                    <input type="text" name="pin" placeholder="PIN" class="p-2 border rounded">
+                    <input type="text" name="passphrase" placeholder="Passphrase" class="p-2 border rounded">
+                    <div class="col-span-2 flex justify-end gap-2 border-t pt-4">
+                        <button type="button" onclick="closeModal('passModal')" class="px-4 py-2 text-gray-500">Batal</button>
+                        <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded">Simpan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, addDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+        const getColRef = (sub) => collection(db, 'artifacts', appId, 'public', 'data', 'datapersonal', 'main', sub);
+
+        let dataStore = { daily: [], tasks: [], passwords: [] };
+        let currentUser = null;
+        let deleteQueue = { type: null, id: null };
+        const CORRECT_PIN = "888";
+
+        const showLoader = (text, sub = "Mohon tunggu sebentar") => {
+            document.getElementById('loader').classList.remove('hidden');
+            document.getElementById('loaderText').innerText = text;
+            document.getElementById('loaderSubText').innerText = sub;
+        };
+
+        const hideLoader = () => document.getElementById('loader').classList.add('hidden');
+
+        const initAuth = async () => {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (err) { console.error("Auth Error:", err); }
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            if (user) {
+                hideLoader();
+                startListeners();
+            }
+        });
+
+        initAuth();
+
+        function startListeners() {
+            if (!currentUser) return;
+            ['daily', 'tasks', 'passwords'].forEach(sub => {
+                onSnapshot(getColRef(sub), (snap) => {
+                    dataStore[sub] = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                    if(sub === 'daily') renderDaily();
+                    if(sub === 'tasks') renderTasks();
+                    if(sub === 'passwords') renderPasswords();
+                }, (err) => console.error(`Listener ${sub} error:`, err));
+            });
+        }
+
+        // --- BACKUP & PULIHKAN ---
+
+        window.backupData = () => {
+            const blob = new Blob([JSON.stringify(dataStore, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `cadangan_personal_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+        };
+
+        window.restoreData = async (event) => {
+            const file = event.target.files[0];
+            if (!file || !currentUser) return;
+
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    if (!importedData.daily && !importedData.tasks && !importedData.passwords) {
+                        throw new Error("Format file tidak valid.");
+                    }
+
+                    if (!confirm("Konfirmasi: Data akan ditambahkan ke cloud. Lanjutkan?")) return;
+                    
+                    showLoader("Memulihkan Data...", "Menyiapkan...");
+
+                    const types = ['daily', 'tasks', 'passwords'];
+                    for (const type of types) {
+                        const items = importedData[type] || [];
+                        for (const item of items) {
+                            const { id, ...cleanData } = item;
+                            await addDoc(getColRef(type), cleanData);
+                        }
+                    }
+                    alert("Berhasil memulihkan data!");
+                } catch (err) {
+                    alert("Gagal: " + err.message);
+                } finally {
+                    hideLoader();
+                    event.target.value = '';
+                }
+            };
+            reader.readAsText(file);
+        };
+
+        // --- FILTER & CRUD ---
+        
+        window.applyFilters = () => { renderDaily(); renderTasks(); };
+        window.resetFilters = () => {
+            document.getElementById('filterStart').value = '';
+            document.getElementById('filterEnd').value = '';
+            applyFilters();
+        };
+
+        const filterByDate = (data) => {
+            const s = document.getElementById('filterStart').value;
+            const e = document.getElementById('filterEnd').value;
+            return data.filter(i => {
+                if (!i.tanggal) return true;
+                if (s && i.tanggal < s) return false;
+                if (e && i.tanggal > e) return false;
+                return true;
+            });
+        };
+
+        window.exportToExcel = () => {
+            const activeTab = document.querySelector('.tab-active').id.replace('tab-', '');
+            let data = dataStore[activeTab];
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = `ekspor_${activeTab}.txt`; a.click();
+        };
+
+        window.saveToFirestore = async (type, formData) => {
+            if (!currentUser) return;
+            const data = Object.fromEntries(formData.entries());
+            const docId = data.id;
+            delete data.id;
+            try {
+                if (docId) await setDoc(doc(getColRef(type), docId), data);
+                else await addDoc(getColRef(type), data);
+            } catch (err) { console.error(err); }
+        };
+
+        window.deleteFromFirestore = (type, id) => {
+            deleteQueue = { type, id };
+            document.getElementById('pinModal').classList.remove('hidden');
+        };
+
+        window.closePinModal = () => document.getElementById('pinModal').classList.add('hidden');
+
+        window.confirmDeleteWithPin = async () => {
+            if (document.getElementById('deletePinInput').value === CORRECT_PIN) {
+                await deleteDoc(doc(getColRef(deleteQueue.type), deleteQueue.id));
+                closePinModal();
+            } else alert("PIN Salah!");
+            document.getElementById('deletePinInput').value = '';
+        };
+
+        window.switchTab = (t) => {
+            ['daily', 'tasks', 'passwords'].forEach(k => {
+                document.getElementById(`section-${k}`).classList.toggle('hidden', k !== t);
+                document.getElementById(`tab-${k}`).classList.toggle('tab-active', k === t);
+            });
+        };
+
+        window.openModal = (id, editId = null) => {
+            const modal = document.getElementById(id);
+            modal.classList.remove('hidden');
+            const form = modal.querySelector('form');
+            form.reset();
+            const type = id.includes('daily') ? 'daily' : (id.includes('task') ? 'tasks' : 'passwords');
+            if (editId) {
+                const item = dataStore[type].find(i => i.id === editId);
+                Object.keys(item).forEach(k => {
+                    const input = form.querySelector(`[name="${k}"]`);
+                    if (input) input.value = item[k];
+                });
+                form.querySelector('[name="id"]').value = editId;
+            }
+        };
+
+        window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
+
+        document.getElementById('dailyForm').onsubmit = (e) => { e.preventDefault(); window.saveToFirestore('daily', new FormData(e.target)); closeModal('dailyModal'); };
+        document.getElementById('taskForm').onsubmit = (e) => { e.preventDefault(); window.saveToFirestore('tasks', new FormData(e.target)); closeModal('taskModal'); };
+        document.getElementById('passForm').onsubmit = (e) => { e.preventDefault(); window.saveToFirestore('passwords', new FormData(e.target)); closeModal('passModal'); };
+
+        function renderDaily() {
+            const body = document.getElementById('dailyTableBody');
+            const data = filterByDate(dataStore.daily).sort((a,b) => b.tanggal.localeCompare(a.tanggal));
+            document.getElementById('emptyDaily').classList.toggle('hidden', data.length > 0);
+            body.innerHTML = data.map(item => `
+                <tr class="hover:bg-gray-50"><td class="p-4 no-wrap">${item.tanggal}</td><td class="p-4 text-gray-500">${item.jam}</td><td class="p-4 font-bold cell-wrap">${item.kegiatan}</td><td class="p-4 cell-wrap text-gray-600">${item.keterangan || '-'}</td><td class="p-4 text-center"><button onclick="openModal('dailyModal', '${item.id}')" class="text-blue-600 mr-2">Ubah</button><button onclick="deleteFromFirestore('daily', '${item.id}')" class="text-red-600">Hapus</button></td></tr>
+            `).join('');
+        }
+
+        function renderTasks() {
+            const body = document.getElementById('taskTableBody');
+            const data = filterByDate(dataStore.tasks).sort((a,b) => a.tanggal.localeCompare(b.tanggal));
+            document.getElementById('emptyTask').classList.toggle('hidden', data.length > 0);
+            body.innerHTML = data.map(item => `
+                <tr class="hover:bg-gray-50"><td class="p-4 uppercase text-[10px] text-gray-400 font-bold border-r">${item.bidang}</td><td class="p-4 font-bold text-blue-800 cell-wrap">${item.namaTugas}</td><td class="p-4 no-wrap">${item.tanggal}</td><td class="p-4 text-xs">${item.pdfUrl ? `<a href="${item.pdfUrl}" target="_blank" class="text-blue-600 block">📄 PDF</a>` : ''}${item.link ? `<a href="${item.link}" target="_blank" class="text-blue-400 block">🔗 Link</a>` : ''}</td><td class="p-4 text-center"><span class="${item.status === 'Selesai' ? 'status-done' : 'status-pending'} px-2 py-1 rounded text-[10px] font-black uppercase">${item.status}</span></td><td class="p-4 text-gray-500 text-xs">${item.tglLaporan || '-'}</td><td class="p-4 text-xs italic text-gray-600">${item.keterangan || '-'}</td><td class="p-4 text-center"><button onclick="openModal('taskModal', '${item.id}')" class="text-blue-600 mr-2">Ubah</button><button onclick="deleteFromFirestore('tasks', '${item.id}')" class="text-red-600">Hapus</button></td></tr>
+            `).join('');
+        }
+
+        function renderPasswords() {
+            const body = document.getElementById('passTableBody');
+            document.getElementById('emptyPass').classList.toggle('hidden', dataStore.passwords.length > 0);
+            body.innerHTML = dataStore.passwords.map(item => `
+                <tr class="hover:bg-gray-50"><td class="p-4 font-bold text-[10px] uppercase">${item.bidang}</td><td class="p-4"><span class="bg-gray-100 px-2 py-0.5 rounded text-[10px] font-bold">${item.jenis}</span></td><td class="p-4"><div class="font-bold text-indigo-700">${item.nama}</div></td><td class="p-4"><code class="text-xs bg-gray-50 p-1 rounded">${item.user}</code></td><td class="p-4"><span class="text-xs font-mono">${item.password}</span></td><td class="p-4 text-xs">${item.pin ? 'PIN: '+item.pin : ''}</td><td class="p-4 text-center"><button onclick="openModal('passModal', '${item.id}')" class="text-blue-600 mr-2">Ubah</button><button onclick="deleteFromFirestore('passwords', '${item.id}')" class="text-red-600">Hapus</button></td></tr>
+            `).join('');
+        }
+    </script>
+</body>
+</html>
