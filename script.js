@@ -749,6 +749,12 @@ function handleLogin() {
 
     if (roleConfig) {
         currentUserRole = roleConfig.role;
+        
+        // Simpan sesi login 15 menit
+        localStorage.setItem('sipandu_userRole', currentUserRole);
+        localStorage.setItem('sipandu_loginTime', Date.now().toString());
+        localStorage.setItem('sipandu_pin', pin);
+
         trackVisitor(currentUserRole); // Track visit on successful login
         loginError.classList.add('hidden');
         loginPage.classList.add('hidden');
@@ -757,6 +763,11 @@ function handleLogin() {
         
         applyMenuPermissions(pin); // Terapkan izin menu berdasarkan PIN
         showPage('dashboard'); // Tampilkan dashboard setelah login
+
+        // Set timeout untuk auto logout 15 menit
+        setTimeout(() => {
+            handleLogoutSessionExpired();
+        }, 15 * 60 * 1000);
     } else {
         loginError.innerText = 'PIN salah. Silakan coba lagi.';
         loginError.classList.remove('hidden');
@@ -782,6 +793,12 @@ function closeLogoutModal() {
 
 function confirmLogout() {
     closeLogoutModal();
+    
+    // Bersihkan sesi
+    localStorage.removeItem('sipandu_userRole');
+    localStorage.removeItem('sipandu_loginTime');
+    localStorage.removeItem('sipandu_pin');
+
     const loginPage = document.getElementById('login-page');
     const mainAppContent = document.getElementById('main-app-content');
     const pinInput = document.getElementById('pin-input');
@@ -791,6 +808,31 @@ function confirmLogout() {
     pinInput.value = ''; // Bersihkan input PIN
     currentUserRole = null; // Reset peran pengguna
     showToastGagah('Anda telah logout.', 'log-out', 'text-slate-400');
+}
+
+function handleLogoutSessionExpired() {
+    // Bersihkan sesi karena expired
+    localStorage.removeItem('sipandu_userRole');
+    localStorage.removeItem('sipandu_loginTime');
+    localStorage.removeItem('sipandu_pin');
+
+    const loginPage = document.getElementById('login-page');
+    const mainAppContent = document.getElementById('main-app-content');
+    const pinInput = document.getElementById('pin-input');
+
+    if (mainAppContent && loginPage) {
+        mainAppContent.classList.add('hidden');
+        loginPage.classList.remove('hidden');
+    }
+    if (pinInput) pinInput.value = '';
+    currentUserRole = null;
+    showToastGagah('Sesi login habis (15 menit). Silakan login kembali.', 'clock', 'text-rose-500');
+    
+    // Tutup modal logout jika sedang terbuka
+    const modal = document.getElementById('logout-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
 }
 
 // Panggil showPage saat halaman dimuat pertama kali
@@ -1221,6 +1263,35 @@ document.addEventListener('DOMContentLoaded', () => {
                 loadFormInFrame(href, title);
             }
         });
+    }
+
+    // Cek sesi login
+    const storedRole = localStorage.getItem('sipandu_userRole');
+    const loginTime = localStorage.getItem('sipandu_loginTime');
+    const storedPin = localStorage.getItem('sipandu_pin');
+
+    if (storedRole && loginTime && storedPin) {
+        const now = Date.now();
+        const diff = now - parseInt(loginTime, 10);
+        const fifteenMinutes = 15 * 60 * 1000;
+
+        if (diff < fifteenMinutes) {
+            // Sesi valid
+            currentUserRole = storedRole;
+            document.getElementById('login-page').classList.add('hidden');
+            document.getElementById('main-app-content').classList.remove('hidden');
+            applyMenuPermissions(storedPin);
+            
+            // Set timeout sisa waktu
+            setTimeout(() => {
+                handleLogoutSessionExpired();
+            }, fifteenMinutes - diff);
+        } else {
+            // Sesi expired
+            localStorage.removeItem('sipandu_userRole');
+            localStorage.removeItem('sipandu_loginTime');
+            localStorage.removeItem('sipandu_pin');
+        }
     }
 
     // Tampilkan Dashboard secara otomatis saat load awal
